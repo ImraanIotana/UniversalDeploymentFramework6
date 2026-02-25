@@ -1,19 +1,24 @@
+#
+# Module 'WriteEngine.psm1'
+# Last Update: February 2026
+#
+
 ####################################################################################################
 <#
 .SYNOPSIS
-    This function writes a line to the host in several colors.
+    Outputs a formatted message to the host with customizable colors for enhanced readability and status indication.
 .DESCRIPTION
-    This function is self-contained and does not refer to functions or variables, that are in other files.
+    Provides a function for writing messages to the host in various colors, supporting multiple message types for deployment and automation scenarios.
 .EXAMPLE
     Write-Line "Hello World!"
 .EXAMPLE
-    Write-Line "Hello World!" -Type Success
+    Write-Line "Deployment completed successfully." -Type Success
 .INPUTS
     [System.String]
 .OUTPUTS
     This function returns no stream output.
 .NOTES
-    Version         : 6.0
+    Version         : 6.0.0.0
     Author          : Imraan Iotana
     Creation Date   : August 2025
     Last Update     : February 2026
@@ -62,53 +67,39 @@ function Write-Line {
 
         # Add the FullMessage property
         $MessageObject | Add-Member -MemberType ScriptProperty FullMessage -Value {
+            # Set the properties for the message
+            [System.String]$TimeStamp       = $this.FullTimeStamp
+            [System.String]$CallingFunction = $this.CallingFunction
+            # Set the message based on the MessageType
             switch ($this.MessageType) {
-                'NoAction'          {
-                    'No action has been taken.'
-                }
-                'SuccessNoAction'          {
-                    ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: The $($Global:DeploymentObject.Action)-process is considered successful. No action has been taken.")
-                }
-                'Seperation'        {
-                    "[$($this.FullTimeStamp)] ----------------------------------------------------------------------------------------------------"
-                }
-                'DoubleSeperation'        {
-                    "[$($this.FullTimeStamp)] ===================================================================================================="
-                }
-                'ValidationSuccess' {
-                    ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: The validation is successful. The process will now start.")
-                }
-                'ValidationFail' {
-                    ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: The validation failed. The process will NOT start.")
-                }
-                Default             {
-                    ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: $($this.InputMessage)")
-                }
+                'NoAction'            { 'No action has been taken.' }
+                'SuccessNoAction'     { "[$($TimeStamp)] [$($CallingFunction)]: The $($Global:DeploymentObject.Action)-process is considered successful. No action has been taken." }
+                'Seperation'          { "[$($TimeStamp)] ----------------------------------------------------------------------------------------------------" }
+                'DoubleSeperation'    { "[$($TimeStamp)] ====================================================================================================" }
+                'ValidationSuccess'   { "[$($TimeStamp)] [$($CallingFunction)]: The validation is successful. The process will now start." }
+                'ValidationFail'      { "[$($TimeStamp)] [$($CallingFunction)]: The validation failed. The process will NOT start." }
+                Default               { "[$($TimeStamp)] [$($CallingFunction)]: $($this.InputMessage)" }
             }
         }
 
         # Add the ForegroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty ForegroundColor -Value {
             switch ($this.MessageType) {
-                'Busy'              { 'Yellow' }
-                'Success'           { 'Green' }
-                'Fail'              { 'White' }
-                'Normal'            { 'White' }
-                'Special'           { 'Cyan' }
-                'SuccessNoAction'   { 'Green' }
-                'Seperation'        { 'White' }
-                'DoubleSeperation'  { 'White' }
-                'ValidationFail'    { 'White' }
-                Default             { 'DarkGray' }
+                'Busy'                          { 'Yellow' }
+                'Success','SuccessNoAction'     { 'Green' }
+                'Normal','Fail'                 { 'White' }
+                'Special'                       { 'Cyan' }
+                'Seperation','DoubleSeperation' { 'White' }
+                'ValidationFail'                { 'White' }
+                Default                         { 'DarkGray' }
             }
         }
 
         # Add the BackgroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty BackgroundColor -Value {
             switch ($this.MessageType) {
-                'Fail'              { 'DarkRed' }
-                'ValidationFail'    { 'DarkRed' }
-                Default             { '' }
+                'Fail','ValidationFail' { 'DarkRed' }
+                Default                 { '' }
             }
         }
 

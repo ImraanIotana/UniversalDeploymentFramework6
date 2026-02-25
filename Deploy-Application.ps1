@@ -37,52 +37,31 @@
 
 [CmdletBinding(DefaultParameterSetName='Install')]
 param (
-    # Switch for Installation
-    [Parameter(Mandatory=$false,ParameterSetName='Install',Position=0)]
-    [System.Management.Automation.SwitchParameter]
-    $Install,
+    [Parameter(Mandatory=$false,ParameterSetName='Install',HelpMessage='Use this switch to trigger the installation process.')]
+    [System.Management.Automation.SwitchParameter]$Install,
 
-    # Switch for Uninstallation
-    [Parameter(Mandatory=$true,ParameterSetName='Uninstall',Position=0)]
-    [System.Management.Automation.SwitchParameter]
-    $Uninstall,
-
-    # Switch for Reinstallation
-    [Parameter(Mandatory=$true,ParameterSetName='Reinstall',Position=0)]
-    [System.Management.Automation.SwitchParameter]
-    $Reinstall
+    [Parameter(Mandatory=$true,ParameterSetName='Uninstall',HelpMessage='Use this switch to trigger the uninstallation process.')]
+    [System.Management.Automation.SwitchParameter]$Uninstall
 )
 
 begin {
-
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
-#region ### START PACKAGER INPUT ###
+#region ### START USER INPUT ###
 
 # 1. SET THE APPLICATION ID
-[System.String]$ApplicationID           = '<<APPLICATIONID>>'
-# 1a. If you want to reverse the deployment order during Uninstall, then set this boolean to true. (Default value is $false. Note: this only works with Uninstall, not with Reinstall.)
-[System.Boolean]$ReverseUninstallOrder  = $false
-# 1b. If you want to abort the installation sequence, when the deployment of one object fails, then set this boolean to true. (Default value is $true)
-[System.Boolean]$AbortWhenOneFails      = $true
-# 1c. If the sourcefiles are on a network location, then change this value. Only fill in the Parent Folder. (For example: '//Domain/SCCMSources/NetworkInstallations'. The Application ID will be added automatically. Default value is 'Default')
-[System.String]$SourceFilesFolder       = 'Default'
-# 1d. The default Buildnumber is 01. If you created a new build of the same application and version, then increment this value.
-[System.String]$BuildNumber             = '01'
+[System.String]$ApplicationID       = '<<APPLICATIONID>>'
+# 2. SET THE BUILD NUMBER
+[System.String]$BuildNumber         = '01'
+# 3. SET THE SOURCE FILES FOLDER (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')
+[System.String]$SourceFilesFolder   = 'Default'
 
-####################################################################################################
-# 2. SET THE DEPLOYMENT OBJECTS
-# Add the Deployment Objects here. Please see the explanation in the lower section of this script.
-[PSCustomObject[]]$DeploymentsObjectsArray = @(
-)
-####################################################################################################
-
-#endregion ### END PACKAGER INPUT ###
+#endregion ### END USER INPUT ###
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
-### NO PACKAGER INPUT BELOW THIS POINT ###
+### NO USER INPUT BELOW THIS POINT ###
 
 
 ####################################################################################################
@@ -90,34 +69,26 @@ begin {
     # Create the Global DeploymentObject
     [PSCustomObject]$Global:DeploymentObject = @{
         # Main
-        Name                    = [System.String]'Universal Deployment Framework'
-        DeploymentScriptVersion = [System.String]'5.6.2'
-        CompanyName             = [System.String]'KeyStone'
+        Name                        = [System.String]'Universal Deployment Framework'
+        DeploymentScriptVersion     = [System.String]'6.0.0.0'
+        CompanyName                 = [System.String]'KeyStone' # verplaatsen naar ander bestand?
         # Deployment Handlers
-        ApplicationID           = [System.String]$ApplicationID
-        BuildNumber             = [System.String]$BuildNumber
-        #DeploymentObjects       = [PSCustomObject[]]$DeploymentsObjectsArray
-        Action                  = [System.String]$PSCmdlet.ParameterSetName
-        ReverseUninstallOrder   = [System.Boolean]$ReverseUninstallOrder
-        AbortWhenOneFails       = [System.Boolean]$AbortWhenOneFails
+        ApplicationID               = $ApplicationID
+        BuildNumber                 = $BuildNumber
+        Action                      = $PSCmdlet.ParameterSetName
         # Folders
-        SupportScriptsFolder    = [System.String](Join-Path -Path $PSScriptRoot -ChildPath 'Deploy-ApplicationSupport')
-        SourceFilesFolder       = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { Join-Path -Path $SourceFilesFolder -ChildPath $ApplicationID }
-        Rootfolder              = [System.String]$PSScriptRoot
-        LogFolder               = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
-        SystemStartmenuFolder   = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Microsoft\Windows\Start Menu\Programs')
-        SystemDesktopFolder     = [System.String]'C:\Users\Public\Desktop'
+        EnginesFolder               = [System.String](Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
+        SourceFilesFolder           = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { $SourceFilesFolder }
+        Rootfolder                  = [System.String]$PSScriptRoot
+        LogFolder                   = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         # Files
-        PowerShellExePath       = [System.String](Join-Path -Path ([System.Environment]::SystemDirectory) -ChildPath 'WindowsPowerShell\v1.0\powershell.exe')
-        MSIExecutablePath       = [System.String](Join-Path -Path $ENV:SystemRoot -ChildPath 'System32\msiexec.exe')
-        REGExecutablePath       = [System.String](Join-Path -Path $ENV:SystemRoot -ChildPath 'System32\REG.exe')
+        DeploymentObjectsFileName   = [System.String]'DeploymentObjects.psd1'
         # Administrative Handlers
-        TimeStamp               = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
-        DeploymentResult        = [System.String]'DEFAULT_VALUE'
+        TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
-    # Add the Module path to the Environment Variable
-    #$ENV:PSModulePath += ";$($Global:DeploymentObject.SupportScriptsFolder)"
+    # Add the Engines path to the Environment Variable
+    $ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
     # Import the Write module
     #Import-Module ModuleWrite
 
@@ -145,12 +116,13 @@ process {
         return
     }
 
+    # Import the Deployment Objects from the .psd1 file
     [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
     Write-Host "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -ForegroundColor Green
 
     # Output the Deployment Objects to the host
     Write-Host "Deployment Objects:" -ForegroundColor Cyan
-    $DeploymentObjects | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
+    $DeploymentObjects.GetEnumerator() | Format-Table -AutoSize
 }
 
 end {

@@ -36,7 +36,7 @@
 
 
 # Add the Deployment Objects here. Please see the explanation in the lower section of this script.
-[System.Collections.Hashtable[]]$DeploymentsObjectsArray = @(
+[System.Collections.Hashtable[]]$DeploymentsObjects = @(
     @{
         Type                        = 'DEPLOYMSI'
         MSIBaseName                 = 'TESTMSI'        # (Mandatory String) Set the MSI BASENAME WITHOUT the extension (.msi). Example: 'Orca-x86_en-us'.

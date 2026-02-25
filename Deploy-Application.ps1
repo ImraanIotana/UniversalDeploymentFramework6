@@ -93,7 +93,7 @@ process {
     [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
     write-host "The Type of the imported DeploymentData variable is '$($DeploymentData.GetType().FullName)'."
     # Deploy the Objects
-    Deploy-Objects -DeploymentData $DeploymentData
+    Start-Deployment -DeploymentData $DeploymentData
 }
 
 end {

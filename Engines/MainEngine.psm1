@@ -10,11 +10,11 @@
 .DESCRIPTION
     Provides a function for deploying objects in the DeploymentObjectsArray, supporting multiple deployment scenarios and automation tasks.
 .EXAMPLE
-    Deploy-Objects -Objects $DeploymentObjectsArray
+    Start-Deployment -DeploymentData $DeploymentData
 .EXAMPLE
-    Deploy-Objects -Objects $DeploymentObjectsArray -Force
+    Start-Deployment -DeploymentData $DeploymentData -Force
 .INPUTS
-    [System.Array]
+    [System.Collections.Hashtable]
 .OUTPUTS
     This function returns no stream output.
 .NOTES
@@ -27,7 +27,7 @@
 #>
 ####################################################################################################
 
-function Deploy-Objects {
+function Start-Deployment {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true,HelpMessage='The deployment data that will be used for processing.')]
@@ -35,15 +35,13 @@ function Deploy-Objects {
     )
 
     begin {
-        ####################################################################################################
-        ### MAIN PROPERTIES ###
     }
 
     process {
 
-        [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentsObjects
+        [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
         if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
-            Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was found but contains no valid Deployment Objects." -Type Fail ; return
+            Write-Line "Deployment Objects file '$DeploymentObjectsFileName' contains no valid Deployment Objects." -Type Fail ; return
         }
         # Write the success message
         Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success

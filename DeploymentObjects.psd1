@@ -32,7 +32,7 @@
     SourceFilesFolder   = 'Default'
 
     # Set the Deployment Objects
-    DeploymentsObjects  = @(
+    DeploymentObjects   = @(
         @{
             Type                        = 'DEPLOYMSI'
             MSIBaseName                 = 'TESTMSI'        # (Mandatory String) Set the MSI BASENAME WITHOUT the extension (.msi). Example: 'Orca-x86_en-us'.
@@ -57,7 +57,7 @@
 <#region ###### EXPLANATION AND EXAMPLE ######
 
 Instructions:
-Add DeploymentObjects to the DeploymentsObjectsArray. The objects will be deployed from top to bottom.
+Add DeploymentObjects to the DeploymentObjectsArray. The objects will be deployed from top to bottom.
 
 THIS IS AN EXAMPLE:
 The following example firstly installs an MSI, then waits 10 seconds, then configures the application, and the removes the desktopshortcut:

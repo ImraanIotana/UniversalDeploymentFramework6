@@ -13,11 +13,12 @@
 .OUTPUTS
     This function returns no stream output.
 .NOTES
-    This function is part of the Universal Deployment Framework.
     Version         : 6.0
     Author          : Imraan Iotana
     Creation Date   : August 2025
     Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
 #>
 ####################################################################################################
 
@@ -81,11 +82,7 @@ function Write-Line {
                     ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: The validation failed. The process will NOT start.")
                 }
                 Default             {
-                    if ($this.InputMessage.StartsWith('[')) {
-                        "[$($this.FullTimeStamp)] $($this.InputMessage)"
-                    } else {
-                        ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: $($this.InputMessage)")
-                    }
+                    ("[$($this.FullTimeStamp)] [$($this.CallingFunction)]: $($this.InputMessage)")
                 }
             }
         }

@@ -30,7 +30,7 @@
     Creation Date   : January 2023
     Last Update     : January 2026
 .COPYRIGHT
-    Copyright (C) Iotana. All rights reserved.
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
 #>
 ####################################################################################################
 
@@ -62,6 +62,7 @@ begin {
 }
 
 process {
+    # MAIN OBJECT
     # Create the Global DeploymentObject
     [PSCustomObject]$Global:DeploymentObject = @{
         # Main
@@ -82,28 +83,28 @@ process {
         TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
-    # Add the Engines path to the Environment Variable
-    #$ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
-
-    # Import the Write module
+    # ENGINES
+    # Import the Engines
     Import-Module .\Engines\WriteEngine.psm1
 
-    # Set the filename of the Deployment Objects file
-    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $Global:DeploymentObject.DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    # DEPLOYMENT OBJECTS
     # Validate the Deployment Objects file
+    [System.String]$DeploymentObjectsFileName = $Global:DeploymentObject.DeploymentObjectsFileName
+    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
     if (-not($DeploymentObjectsFilePath)) {
-        Write-Line "ERROR: Deployment Objects file '$($Global:DeploymentObject.DeploymentObjectsFileName)' not found in the root folder or any subfolder." -Type Fail
-        return
+        Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was not found in the root folder or any subfolder." -Type Fail ; return
     }
-
-    # Import the Deployment Objects from the .psd1 file
-    [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
+    # Import and Validate the Deployment Objects from the .psd1 file
+    [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
+    if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
+        Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was found but contains no valid Deployment Objects." -Type Fail ; return
+    }
+    # Write the success message
     Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
 
-    # Output the Deployment Objects to the host
-    Write-Line "Deployment Objects:" -Type Special
+    # EXECUTION
+    # Output the Deployment Objects to the host for verification
     $DeploymentObjects.GetEnumerator() | Format-Table -AutoSize
-    $Global:DeploymentObject.GetEnumerator() | Format-Table -AutoSize
 }
 
 end {

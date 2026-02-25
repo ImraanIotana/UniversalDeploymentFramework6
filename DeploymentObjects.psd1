@@ -30,7 +30,7 @@
     Creation Date   : January 2023
     Last Update     : January 2026
 .COPYRIGHT
-    Copyright (C) Iotana. All rights reserved.
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
 #>
 ####################################################################################################
 

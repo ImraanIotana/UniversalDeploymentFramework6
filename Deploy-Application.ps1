@@ -82,41 +82,26 @@ process {
         TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
-
-    # Get all ps1 files from the support folder
-    #[System.IO.FileInfo[]]$Local:AllSupportScriptFiles = Get-ChildItem -Path $Global:DeploymentObject.SupportScriptsFolder -Recurse -File -Include *.ps1 -ErrorAction SilentlyContinue
-    # Unblock the ps1 files
-    #$Local:AllSupportScriptFiles | Unblock-File
-    # Dot-source the ps1 files (External functions can be used after this line)
-    #$Local:AllSupportScriptFiles | ForEach-Object { . $_.FullName }
-
     # Add the Engines path to the Environment Variable
-    $ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
+    #$ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
 
     # Import the Write module
-    Import-Module ModuleWrite
-
-    # Test
-    Write-Host "The Name is: $($Global:DeploymentObject.Name)" -ForegroundColor Cyan
-    Write-Host "The deployment action is: $($Global:DeploymentObject.Action)" -ForegroundColor Cyan
-    Write-Host "The ApplicationID is: $($Global:DeploymentObject.ApplicationID)" -ForegroundColor Cyan
-
-    Write-Line "The UDF Version is: $($Global:DeploymentObject.UDFVersion)" -Type Special
+    Import-Module .\Engines\WriteEngine.psm1
 
     # Set the filename of the Deployment Objects file
     [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $Global:DeploymentObject.DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
     # Validate the Deployment Objects file
     if (-not($DeploymentObjectsFilePath)) {
-        Write-Host "ERROR: Deployment Objects file '$($Global:DeploymentObject.DeploymentObjectsFileName)' not found in the root folder or any subfolder." -ForegroundColor Red
+        Write-Line "ERROR: Deployment Objects file '$($Global:DeploymentObject.DeploymentObjectsFileName)' not found in the root folder or any subfolder." -Type Fail
         return
     }
 
     # Import the Deployment Objects from the .psd1 file
     [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
-    Write-Host "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -ForegroundColor Green
+    Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
 
     # Output the Deployment Objects to the host
-    Write-Host "Deployment Objects:" -ForegroundColor Cyan
+    Write-Line "Deployment Objects:" -Type Special
     $DeploymentObjects.GetEnumerator() | Format-Table -AutoSize
     $Global:DeploymentObject.GetEnumerator() | Format-Table -AutoSize
 }

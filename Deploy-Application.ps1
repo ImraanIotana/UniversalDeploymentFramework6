@@ -66,7 +66,7 @@ process {
     [PSCustomObject]$Global:DeploymentObject = @{
         # Main
         Name                        = [System.String]'Universal Deployment Framework'
-        DeploymentScriptVersion     = [System.String]'6.0.0.0'
+        UDFVersion                  = [System.String]'6.0.0.0'
         # Deployment Handlers
         ApplicationID               = $ApplicationID
         BuildNumber                 = $BuildNumber
@@ -94,19 +94,20 @@ process {
     $ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
 
     # Import the Write module
-    #Import-Module ModuleWrite
+    Import-Module ModuleWrite
 
     # Test
     Write-Host "The Name is: $($Global:DeploymentObject.Name)" -ForegroundColor Cyan
     Write-Host "The deployment action is: $($Global:DeploymentObject.Action)" -ForegroundColor Cyan
     Write-Host "The ApplicationID is: $($Global:DeploymentObject.ApplicationID)" -ForegroundColor Cyan
 
+    Write-Line "The UDF Version is: $($Global:DeploymentObject.UDFVersion)" -Type Special
+
     # Set the filename of the Deployment Objects file
-    [System.String]$DeploymentObjectsFileName = 'DeploymentObjects.psd1'
-    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $Global:DeploymentObject.DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
     # Validate the Deployment Objects file
     if (-not($DeploymentObjectsFilePath)) {
-        Write-Host "ERROR: Deployment Objects file '$DeploymentObjectsFileName' not found in the root folder or any subfolder." -ForegroundColor Red
+        Write-Host "ERROR: Deployment Objects file '$($Global:DeploymentObject.DeploymentObjectsFileName)' not found in the root folder or any subfolder." -ForegroundColor Red
         return
     }
 

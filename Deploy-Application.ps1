@@ -47,7 +47,6 @@ param (
 begin {
 ####################################################################################################
 ####################################################################################################
-####################################################################################################
 #region ### START USER INPUT ###
 
 # 1. SET THE APPLICATION ID
@@ -59,38 +58,30 @@ begin {
 
 #endregion ### END USER INPUT ###
 ####################################################################################################
-####################################################################################################
-####################################################################################################
 ### NO USER INPUT BELOW THIS POINT ###
+}
 
-
-####################################################################################################
-
+process {
     # Create the Global DeploymentObject
     [PSCustomObject]$Global:DeploymentObject = @{
         # Main
         Name                        = [System.String]'Universal Deployment Framework'
         DeploymentScriptVersion     = [System.String]'6.0.0.0'
-        CompanyName                 = [System.String]'KeyStone' # verplaatsen naar ander bestand?
         # Deployment Handlers
         ApplicationID               = $ApplicationID
         BuildNumber                 = $BuildNumber
         Action                      = $PSCmdlet.ParameterSetName
-        # Folders
-        EnginesFolder               = [System.String](Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
         SourceFilesFolder           = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { $SourceFilesFolder }
-        Rootfolder                  = [System.String]$PSScriptRoot
-        LogFolder                   = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
+        # Folders
+        EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
+        Rootfolder                  = $PSScriptRoot
+        LogFolder                   = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         # Files
-        DeploymentObjectsFileName   = [System.String]'DeploymentObjects.psd1'
+        DeploymentObjectsFileName   = 'DeploymentObjects.psd1'
         # Administrative Handlers
         TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
-    # Add the Engines path to the Environment Variable
-    $ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
-    # Import the Write module
-    #Import-Module ModuleWrite
 
     # Get all ps1 files from the support folder
     #[System.IO.FileInfo[]]$Local:AllSupportScriptFiles = Get-ChildItem -Path $Global:DeploymentObject.SupportScriptsFolder -Recurse -File -Include *.ps1 -ErrorAction SilentlyContinue
@@ -99,9 +90,12 @@ begin {
     # Dot-source the ps1 files (External functions can be used after this line)
     #$Local:AllSupportScriptFiles | ForEach-Object { . $_.FullName }
 
-}
+    # Add the Engines path to the Environment Variable
+    $ENV:PSModulePath += ";$($Global:DeploymentObject.EnginesFolder)"
 
-process {
+    # Import the Write module
+    #Import-Module ModuleWrite
+
     # Test
     Write-Host "The Name is: $($Global:DeploymentObject.Name)" -ForegroundColor Cyan
     Write-Host "The deployment action is: $($Global:DeploymentObject.Action)" -ForegroundColor Cyan
@@ -123,6 +117,7 @@ process {
     # Output the Deployment Objects to the host
     Write-Host "Deployment Objects:" -ForegroundColor Cyan
     $DeploymentObjects.GetEnumerator() | Format-Table -AutoSize
+    $Global:DeploymentObject.GetEnumerator() | Format-Table -AutoSize
 }
 
 end {

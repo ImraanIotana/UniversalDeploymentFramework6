@@ -60,8 +60,8 @@ begin {
 ####################################################################################################
 #region ### START PACKAGER INPUT ###
 
-# 1. SET THE ASSET ID
-[System.String]$AssetID                 = '<<ASSETID>>'
+# 1. SET THE APPLICATION ID
+[System.String]$ApplicationID           = '<<APPLICATIONID>>'
 # 1a. If you want to reverse the deployment order during Uninstall, then set this boolean to true. (Default value is $false. Note: this only works with Uninstall, not with Reinstall.)
 [System.Boolean]$ReverseUninstallOrder  = $false
 # 1b. If you want to abort the installation sequence, when the deployment of one object fails, then set this boolean to true. (Default value is $true)
@@ -94,16 +94,15 @@ begin {
         DeploymentScriptVersion = [System.String]'5.6.2'
         CompanyName             = [System.String]'KeyStone'
         # Deployment Handlers
-        AssetID                 = [System.String]$AssetID
-        ApplicationID           = [System.String]$AssetID
+        ApplicationID           = [System.String]$ApplicationID
         BuildNumber             = [System.String]$BuildNumber
-        DeploymentObjects       = [PSCustomObject[]]$DeploymentsObjectsArray
+        #DeploymentObjects       = [PSCustomObject[]]$DeploymentsObjectsArray
         Action                  = [System.String]$PSCmdlet.ParameterSetName
         ReverseUninstallOrder   = [System.Boolean]$ReverseUninstallOrder
         AbortWhenOneFails       = [System.Boolean]$AbortWhenOneFails
         # Folders
         SupportScriptsFolder    = [System.String](Join-Path -Path $PSScriptRoot -ChildPath 'Deploy-ApplicationSupport')
-        SourceFilesFolder       = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { Join-Path -Path $SourceFilesFolder -ChildPath $AssetID }
+        SourceFilesFolder       = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { Join-Path -Path $SourceFilesFolder -ChildPath $ApplicationID }
         Rootfolder              = [System.String]$PSScriptRoot
         LogFolder               = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         SystemStartmenuFolder   = [System.String](Join-Path -Path $ENV:ProgramData -ChildPath 'Microsoft\Windows\Start Menu\Programs')
@@ -135,6 +134,24 @@ process {
     # Test
     Write-Host "The Name is: $($Global:DeploymentObject.Name)" -ForegroundColor Cyan
     Write-Host "The deployment action is: $($Global:DeploymentObject.Action)" -ForegroundColor Cyan
+    Write-Host "The ApplicationID is: $($Global:DeploymentObject.ApplicationID)" -ForegroundColor Cyan
+
+    # Set the filename of the Deployment Objects file
+    [System.String]$DeploymentObjectsFileName = 'DeploymentObjects.psd1'
+    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    # Check if the Deployment Objects file exists
+    if (Test-Path -Path $DeploymentObjectsFilePath) {
+        # Import the Deployment Objects from the .psd1 file
+        [System.Collections.Hashtable[]]$Global:DeploymentObject.DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
+        Write-Host "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -ForegroundColor Green
+    }
+    else {
+        Write-Host "ERROR: Deployment Objects file not found at $DeploymentObjectsFilePath" -ForegroundColor Red
+        return
+    }
+    # Output the Deployment Objects to the host
+    Write-Host "Deployment Objects:" -ForegroundColor Cyan
+    $Global:DeploymentObject.DeploymentObjects | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
 }
 
 end {

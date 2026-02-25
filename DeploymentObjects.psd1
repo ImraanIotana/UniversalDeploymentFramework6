@@ -37,6 +37,15 @@
 
 # Add the Deployment Objects here. Please see the explanation in the lower section of this script.
 [System.Collections.Hashtable[]]$DeploymentsObjectsArray = @(
+    @{
+        Type                        = 'DEPLOYMSI'
+        MSIBaseName                 = 'TESTMSI'        # (Mandatory String) Set the MSI BASENAME WITHOUT the extension (.msi). Example: 'Orca-x86_en-us'.
+        MSTBaseName                 = ''        # (Optional String) Set the MST BASENAME WITHOUT the extension (.mst). Example: 'Orca_WithMyAdjustments'. (If there is no MST file then leave this empty.)
+        MSPBaseNames                = @()       # (Optional String Array) Set the MSP BASENAMES WITHOUT the extensions (.msp). Example: @('OrcaPatch01','OrcaPatch02'). (If there are no MSP's then leave this empty.)
+        AdditionalArguments         = @('ADDLOCAL=ALL','ALLUSERS=1','REBOOT=Suppress')  # (Optional String Array) Add any ADDITIONAL INSTALL arguments. Example: @('DATABASE=SQL01','AUTOUPDATE=OFF'). (If there are no additional arguments then leave this empty.)
+        InstallSuccessExitCodes     = @(0,3010) # (Mandatory Integer Array) Set the INSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
+        UninstallSuccessExitCodes   = @(0,3010) # (Mandatory Integer Array) Set the UNINSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
+    }
 )
 
 

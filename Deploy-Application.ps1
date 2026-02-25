@@ -90,7 +90,7 @@ process {
     # DEPLOYMENT OBJECTS
     # Validate the Deployment Objects file
     [System.String]$DeploymentObjectsFileName = $Global:DeploymentObject.DeploymentObjectsFileName
-    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
+    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $PSScriptRoot -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
     if (-not($DeploymentObjectsFilePath)) {
         Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was not found in the root folder or any subfolder." -Type Fail ; return
     }

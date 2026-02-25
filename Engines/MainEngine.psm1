@@ -34,33 +34,38 @@ function Start-Deployment {
         [System.Collections.Hashtable]$DeploymentData
     )
 
+
     begin {
+        # VALIDATION
+        # Validate the ApplicationID
+        if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { $ValidationFailed = $true }
+
+        # Validate the Deployment Objects
+        [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
+        if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
+            Write-Line "Deployment Objects array contains no valid Deployment Objects." -Type Fail ; return
+        }
     }
 
     process {
-        # Validate the ApplicationID
-        if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { return }
+        # If validation failed, return
+        if ($ValidationFailed) { return }
 
-        [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
-        if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
-            Write-Line "Deployment Objects file '$DeploymentObjectsFileName' contains no valid Deployment Objects." -Type Fail ; return
-        }
+
+        Write-Line "RUNNING PROCESS." -Type Special
+
         # Write the success message
         Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
         # Write the amount of Deployment Objects that will be processed
         Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
-        Write-Line "The Application ID is $($DeploymentData.ApplicationID)" -Type Special
-        Write-Line "The Build Number is $($DeploymentData.BuildNumber)" -Type Special
-        Write-Line "The Source Files Folder is $($DeploymentData.SourceFilesFolder)" -Type Special
-
 
         # EXECUTION
-        foreach ($DeploymentObject in $DeploymentObjects) {
+        <#foreach ($DeploymentObject in $DeploymentObjects) {
             # Write the message to the host
             Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy
             # Output the Deployment Objects to the host for verification
             $DeploymentObject.GetEnumerator() | Format-Table -AutoSize
-        }
+        }#>
     }
     
     end {

@@ -79,7 +79,7 @@ process {
 
     # ENGINES
     # Get all psm1 files in the Engines folder and import them
-    Get-ChildItem -Path $Global:DeploymentObject.EnginesFolder -Filter *.psm1 -File -Recurse | ForEach-Object { Import-Module -Name $_.FullName }
+    Get-ChildItem -Path $Global:DeploymentObject.EnginesFolder -Filter *.psm1 -File -Recurse | ForEach-Object { Import-Module -Name $_.FullName -Force }
 
     # DEPLOYMENT OBJECTS
     # Validate the Deployment Objects file

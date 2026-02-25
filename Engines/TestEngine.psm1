@@ -38,6 +38,9 @@ function Test-ApplicationID {
     begin {
         # Set the initial output value to true
         [System.Boolean]$OutputObject = $true
+
+        # Handlers
+        [System.String]$ApplicationIDDefaultValue = '<<APPLICATIONID>>'
     }
 
     process {
@@ -45,7 +48,7 @@ function Test-ApplicationID {
         if ([System.String]::IsNullOrWhiteSpace($ApplicationID)) { Write-Line "The ApplicationID is null or empty." -Type Fail ; $OutputObject = $false ; return }
 
         # If the ApplicationID still is the Default placeholder value, set the output to false
-        if ($ApplicationID -eq '<<APPLICATIONID>>') { Write-Line "The ApplicationID is still set to the default placeholder value. Please provide a valid ApplicationID." -Type Fail ; $OutputObject = $false ; return }
+        if ($ApplicationID -eq $ApplicationIDDefaultValue) { Write-Line "The ApplicationID is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail ; $OutputObject = $false ; return }
 
         # Write the message
         Write-Line "ApplicationID '$ApplicationID' is valid." -Type Success

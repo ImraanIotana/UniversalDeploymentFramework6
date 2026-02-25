@@ -46,6 +46,13 @@
         InstallSuccessExitCodes     = @(0,3010) # (Mandatory Integer Array) Set the INSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
         UninstallSuccessExitCodes   = @(0,3010) # (Mandatory Integer Array) Set the UNINSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
     }
+    @{
+        Type                        = 'REMOVESHORTCUT'
+        ShortcutFileName            = 'Weblink.lnk'        # (Mandatory String) Set the FILENAME of the SHORTCUT to remove, INCLUDING the extension. Examples: 'Acrobat Cloud.lnk' or 'Online Registration.url'
+        RemoveDuringInstall         = $true     # (Mandatory Boolean) If the shortcut must be removed during INSTALL, then set this value to $true.
+        RemoveDuringUninstall       = $false    # (Mandatory Boolean) If the shortcut must be removed during UNINSTALL, then set this value to $true.
+        RemoveFromDesktopOnly       = $false    # (Optional Boolean) If the shortcut must be removed from the DESKTOP only, then set this value to $true. (If false, it will be removed from both Desktop and Startmenu)
+    }
 )
 
 

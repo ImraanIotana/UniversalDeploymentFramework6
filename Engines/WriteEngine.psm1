@@ -31,17 +31,13 @@ function Write-Line {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$false,Position=0,HelpMessage='The message that will be written to the host.')]
-        [AllowNull()]
-        [AllowEmptyString()]
-        [System.String]
-        $Message,
+        [AllowNull()][AllowEmptyString()]
+        [System.String]$Message,
 
         [Parameter(Mandatory=$false,HelpMessage='Type for deciding the colors.')]
-        [ValidateSet('Busy','Success','Fail','Normal','Special','NoAction','SuccessNoAction','Seperation','DoubleSeperation','ValidationSuccess','ValidationFail')]
-        [AllowNull()]
-        [AllowEmptyString()]
-        [System.String]
-        $Type
+        [ValidateSet('Busy','Success','Fail','Normal','Special','NoAction','SuccessNoAction','ValidationSuccess','ValidationFail','Seperation','DoubleSeperation')]
+        [AllowNull()][AllowEmptyString()]
+        [System.String]$Type
     )
 
     begin {
@@ -102,7 +98,6 @@ function Write-Line {
                 Default                 { '' }
             }
         }
-
 
         # WRITE METHOD
         # Add the WriteMessage method

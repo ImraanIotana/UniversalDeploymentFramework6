@@ -38,6 +38,8 @@ function Start-Deployment {
     }
 
     process {
+        # Validate the ApplicationID
+        if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { return }
 
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
         if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
@@ -69,3 +71,4 @@ function Start-Deployment {
 
 # END OF FUNCTION
 ####################################################################################################
+

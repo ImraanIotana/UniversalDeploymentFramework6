@@ -79,6 +79,7 @@ process {
 
     # ENGINES
     # Import the Engines
+    Import-Module .\Engines\MainEngine.psm1
     Import-Module .\Engines\WriteEngine.psm1
 
     # DEPLOYMENT OBJECTS
@@ -89,27 +90,10 @@ process {
         Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was not found in the root folder or any subfolder." -Type Fail ; return
     }
     # Import and Validate the Deployment Objects from the .psd1 file
-    $ContentHashTable = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
-    [System.Collections.Hashtable[]]$DeploymentObjects = $ContentHashTable.DeploymentsObjects
-    if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
-        Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was found but contains no valid Deployment Objects." -Type Fail ; return
-    }
-    # Write the success message
-    Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
-    # Write the amount of Deployment Objects that will be processed
-    Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
-    Write-Line "The Application ID is $($ContentHashTable.ApplicationID)" -Type Special
-    Write-Line "The Build Number is $($ContentHashTable.BuildNumber)" -Type Special
-    Write-Line "The Source Files Folder is $($ContentHashTable.SourceFilesFolder)" -Type Special
-
-
-    # EXECUTION
-    foreach ($DeploymentObject in $DeploymentObjects) {
-        # Write the message to the host
-        Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy
-        # Output the Deployment Objects to the host for verification
-        $DeploymentObject.GetEnumerator() | Format-Table -AutoSize
-    }
+    [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
+    write-host "The Type of the imported DeploymentData variable is '$($DeploymentData.GetType().FullName)'."
+    # Deploy the Objects
+    Deploy-Objects -DeploymentData $DeploymentData
 }
 
 end {

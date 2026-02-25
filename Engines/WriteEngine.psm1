@@ -81,21 +81,25 @@ function Write-Line {
         # Add the ForegroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty ForegroundColor -Value {
             switch ($this.MessageType) {
-                'Busy'                          { 'Yellow' }
-                'Success','SuccessNoAction'     { 'Green' }
-                'Normal','Fail'                 { 'White' }
-                'Special'                       { 'Cyan' }
-                'Seperation','DoubleSeperation' { 'White' }
-                'ValidationFail'                { 'White' }
-                Default                         { 'DarkGray' }
+                'Busy'              { 'Yellow' }
+                'Success'           { 'Green' }
+                'SuccessNoAction'   { 'Green' }
+                'Normal'            { 'White' }
+                'Fail'              { 'White' }
+                'Special'           { 'Cyan' }
+                'Seperation'        { 'White' }
+                'DoubleSeperation'  { 'White' }
+                'ValidationFail'    { 'White' }
+                Default             { 'DarkGray' }
             }
         }
 
         # Add the BackgroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty BackgroundColor -Value {
             switch ($this.MessageType) {
-                'Fail','ValidationFail' { 'DarkRed' }
-                Default                 { '' }
+                'Fail'              { 'DarkRed' }
+                'ValidationFail'    { 'DarkRed' }
+                Default             { '' }
             }
         }
 

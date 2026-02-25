@@ -139,19 +139,18 @@ process {
     # Set the filename of the Deployment Objects file
     [System.String]$DeploymentObjectsFileName = 'DeploymentObjects.psd1'
     [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $Global:DeploymentObject.Rootfolder -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-    # Check if the Deployment Objects file exists
-    if (Test-Path -Path $DeploymentObjectsFilePath) {
-        # Import the Deployment Objects from the .psd1 file
-        [System.Collections.Hashtable[]]$Global:DeploymentObject.DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
-        Write-Host "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -ForegroundColor Green
-    }
-    else {
-        Write-Host "ERROR: Deployment Objects file not found at $DeploymentObjectsFilePath" -ForegroundColor Red
+    # Validate the Deployment Objects file
+    if (-not($DeploymentObjectsFilePath)) {
+        Write-Host "ERROR: Deployment Objects file '$DeploymentObjectsFileName' not found in the root folder or any subfolder." -ForegroundColor Red
         return
     }
+
+    [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
+    Write-Host "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -ForegroundColor Green
+
     # Output the Deployment Objects to the host
     Write-Host "Deployment Objects:" -ForegroundColor Cyan
-    $Global:DeploymentObject.DeploymentObjects | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
+    $DeploymentObjects | ForEach-Object { Write-Host $_ -ForegroundColor Yellow }
 }
 
 end {

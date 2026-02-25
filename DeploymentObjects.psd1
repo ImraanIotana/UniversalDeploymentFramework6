@@ -10,18 +10,6 @@
     SCCM USAGE: Import the application into SCCM and configure the following command lines:
     - Install: powershell.exe -ExecutionPolicy Bypass -File .\Deploy-Application.ps1 -Install -Verbose
     - Uninstall: powershell.exe -ExecutionPolicy Bypass -File .\Deploy-Application.ps1 -Uninstall -Verbose
-.EXAMPLE
-    Deploy-Application.ps1
-.EXAMPLE
-    Deploy-Application.ps1 -Install
-.EXAMPLE
-    Deploy-Application.ps1 -Uninstall
-.INPUTS
-    Requires at minimum:
-        - A valid Application/Asset ID
-        - One or more Deployment Objects
-    Source files (MSI, EXE, fonts, drivers, certificates, icons, etc.) may be placed in the root folder or any subfolder. The framework automatically discovers and
-    resolves the required files. If multiple files share the same name, prepend the parent folder name to ensure uniqueness.
 .OUTPUTS
     No objects are returned to the pipeline. All operational output is written to the host and logged to the deployment logfile.
 .NOTES
@@ -34,27 +22,35 @@
 #>
 ####################################################################################################
 
-
 # Add the Deployment Objects here. Please see the explanation in the lower section of this script.
-[System.Collections.Hashtable[]]$DeploymentsObjects = @(
-    @{
-        Type                        = 'DEPLOYMSI'
-        MSIBaseName                 = 'TESTMSI'        # (Mandatory String) Set the MSI BASENAME WITHOUT the extension (.msi). Example: 'Orca-x86_en-us'.
-        MSTBaseName                 = ''        # (Optional String) Set the MST BASENAME WITHOUT the extension (.mst). Example: 'Orca_WithMyAdjustments'. (If there is no MST file then leave this empty.)
-        MSPBaseNames                = @()       # (Optional String Array) Set the MSP BASENAMES WITHOUT the extensions (.msp). Example: @('OrcaPatch01','OrcaPatch02'). (If there are no MSP's then leave this empty.)
-        AdditionalArguments         = @('ADDLOCAL=ALL','ALLUSERS=1','REBOOT=Suppress')  # (Optional String Array) Add any ADDITIONAL INSTALL arguments. Example: @('DATABASE=SQL01','AUTOUPDATE=OFF'). (If there are no additional arguments then leave this empty.)
-        InstallSuccessExitCodes     = @(0,3010) # (Mandatory Integer Array) Set the INSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
-        UninstallSuccessExitCodes   = @(0,3010) # (Mandatory Integer Array) Set the UNINSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
-    }
-    @{
-        Type                        = 'REMOVESHORTCUT'
-        ShortcutFileName            = 'Weblink.lnk'        # (Mandatory String) Set the FILENAME of the SHORTCUT to remove, INCLUDING the extension. Examples: 'Acrobat Cloud.lnk' or 'Online Registration.url'
-        RemoveDuringInstall         = $true     # (Mandatory Boolean) If the shortcut must be removed during INSTALL, then set this value to $true.
-        RemoveDuringUninstall       = $false    # (Mandatory Boolean) If the shortcut must be removed during UNINSTALL, then set this value to $true.
-        RemoveFromDesktopOnly       = $false    # (Optional Boolean) If the shortcut must be removed from the DESKTOP only, then set this value to $true. (If false, it will be removed from both Desktop and Startmenu)
-    }
-)
+@{
+    # Set the Application ID
+    ApplicationID       = 'Contoso_WebViewer_4.0.4'
+    # Set the Build Number
+    BuildNumber         = '01'
+    # Set the Source Files Folder (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')
+    SourceFilesFolder   = 'Default'
 
+    # Set the Deployment Objects
+    DeploymentsObjects  = @(
+        @{
+            Type                        = 'DEPLOYMSI'
+            MSIBaseName                 = 'TESTMSI'        # (Mandatory String) Set the MSI BASENAME WITHOUT the extension (.msi). Example: 'Orca-x86_en-us'.
+            MSTBaseName                 = ''        # (Optional String) Set the MST BASENAME WITHOUT the extension (.mst). Example: 'Orca_WithMyAdjustments'. (If there is no MST file then leave this empty.)
+            MSPBaseNames                = @()       # (Optional String Array) Set the MSP BASENAMES WITHOUT the extensions (.msp). Example: @('OrcaPatch01','OrcaPatch02'). (If there are no MSP's then leave this empty.)
+            AdditionalArguments         = @('ADDLOCAL=ALL','ALLUSERS=1','REBOOT=Suppress')  # (Optional String Array) Add any ADDITIONAL INSTALL arguments. Example: @('DATABASE=SQL01','AUTOUPDATE=OFF'). (If there are no additional arguments then leave this empty.)
+            InstallSuccessExitCodes     = @(0,3010) # (Mandatory Integer Array) Set the INSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
+            UninstallSuccessExitCodes   = @(0,3010) # (Mandatory Integer Array) Set the UNINSTALL SUCCESS EXIT CODES for the MSI. Example: @(0,123) (The default value is @(0,3010).)
+        }
+        @{
+            Type                        = 'REMOVESHORTCUT'
+            ShortcutFileName            = 'Weblink.lnk'        # (Mandatory String) Set the FILENAME of the SHORTCUT to remove, INCLUDING the extension. Examples: 'Acrobat Cloud.lnk' or 'Online Registration.url'
+            RemoveDuringInstall         = $true     # (Mandatory Boolean) If the shortcut must be removed during INSTALL, then set this value to $true.
+            RemoveDuringUninstall       = $false    # (Mandatory Boolean) If the shortcut must be removed during UNINSTALL, then set this value to $true.
+            RemoveFromDesktopOnly       = $false    # (Optional Boolean) If the shortcut must be removed from the DESKTOP only, then set this value to $true. (If false, it will be removed from both Desktop and Startmenu)
+        }
+    )
+}
 
 
 ####################################################################################################

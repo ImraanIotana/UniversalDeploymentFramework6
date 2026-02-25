@@ -49,11 +49,7 @@ begin {
 ####################################################################################################
 #region ### START USER INPUT ###
 
-# 1. SET THE APPLICATION ID
-[System.String]$ApplicationID       = '<<APPLICATIONID>>'
-# 2. SET THE BUILD NUMBER
-[System.String]$BuildNumber         = '01'
-# 3. SET THE SOURCE FILES FOLDER (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')
+# 2. SET THE SOURCE FILES FOLDER (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')
 [System.String]$SourceFilesFolder   = 'Default'
 
 #endregion ### END USER INPUT ###
@@ -69,8 +65,6 @@ process {
         Name                        = [System.String]'Universal Deployment Framework'
         UDFVersion                  = [System.String]'6.0.0.0'
         # Deployment Handlers
-        ApplicationID               = $ApplicationID
-        BuildNumber                 = $BuildNumber
         Action                      = $PSCmdlet.ParameterSetName
         SourceFilesFolder           = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { $SourceFilesFolder }
         # Folders
@@ -95,16 +89,27 @@ process {
         Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was not found in the root folder or any subfolder." -Type Fail ; return
     }
     # Import and Validate the Deployment Objects from the .psd1 file
-    [System.Collections.Hashtable[]]$DeploymentObjects = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
+    $ContentHashTable = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
+    [System.Collections.Hashtable[]]$DeploymentObjects = $ContentHashTable.DeploymentsObjects
     if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
         Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was found but contains no valid Deployment Objects." -Type Fail ; return
     }
     # Write the success message
     Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
+    # Write the amount of Deployment Objects that will be processed
+    Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
+    Write-Line "The Application ID is $($ContentHashTable.ApplicationID)" -Type Special
+    Write-Line "The Build Number is $($ContentHashTable.BuildNumber)" -Type Special
+    Write-Line "The Source Files Folder is $($ContentHashTable.SourceFilesFolder)" -Type Special
+
 
     # EXECUTION
-    # Output the Deployment Objects to the host for verification
-    $DeploymentObjects.GetEnumerator() | Format-Table -AutoSize
+    foreach ($DeploymentObject in $DeploymentObjects) {
+        # Write the message to the host
+        Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy
+        # Output the Deployment Objects to the host for verification
+        $DeploymentObject.GetEnumerator() | Format-Table -AutoSize
+    }
 }
 
 end {

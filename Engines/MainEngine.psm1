@@ -6,53 +6,57 @@
 ####################################################################################################
 <#
 .SYNOPSIS
-    Deploys the Objects in the DeploymentObjectsArray.
+    Starts the main deployment process.
 .DESCRIPTION
-    Provides a function for deploying objects in the DeploymentObjectsArray, supporting multiple deployment scenarios and automation tasks.
+    This function serves as the main entry point for the deployment process. It takes the file path to the deployment objects .psd1 file as input, imports the deployment data, validates it, and then processes each deployment object accordingly.
+    The deployment objects are expected to be defined in a .psd1 file as a hashtable with a key named 'DeploymentObjects' that holds an array of deployment objects to be processed.
+    Each deployment object should have a 'Type' property that indicates the type of deployment action to be performed, along with any other necessary properties required for that action.
+    No objects are returned to the pipeline. All operational output is written to the host and logged to the deployment logfile.
 .EXAMPLE
-    Start-Deployment -DeploymentData $DeploymentData
-.EXAMPLE
-    Start-Deployment -DeploymentData $DeploymentData -Force
+    Start-MainDeploymentProcess -DeploymentObjectsFilePath $DeploymentObjectsFilePath
 .INPUTS
-    [System.Collections.Hashtable]
+    [System.String]$DeploymentObjectsFilePath
+    A string representing the file path to the deployment objects .psd1 file that will be used for processing.
+    The .psd1 file must contain a hashtable with a key named 'DeploymentObjects' that holds an array of deployment objects to be processed.
 .OUTPUTS
     This function returns no stream output.
 .NOTES
     Version         : 6.0.0.0
     Author          : Imraan Iotana
-    Creation Date   : August 2025
+    Creation Date   : February 2026
     Last Update     : February 2026
 .COPYRIGHT
     This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
 #>
 ####################################################################################################
 
-function Start-Deployment {
+function Start-MainDeploymentProcess {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true,HelpMessage='The deployment data that will be used for processing.')]
-        [System.Collections.Hashtable]$DeploymentData
+        [Parameter(Mandatory=$false,HelpMessage='The path to the deployment objects file that will be used for processing.')]
+        [AllowEmptyString()][AllowNull()][System.String]$DeploymentObjectsFilePath
     )
 
-
     begin {
-        # VALIDATION
-        # Set the validation flag to false
-        [System.Boolean]$ValidationFailed = $false
-
-        # Validate the DeploymentData hashtable
-        if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { $ValidationFailed = $true }
     }
 
     process {
-        # If validation failed, return
-        if ($ValidationFailed) { return }
+        # VALIDATION
+        # Validate the Deployment Objects file
+        if (Test-String -IsEmpty $DeploymentObjectsFilePath) { Write-Line "The Deployment Objects filepath is empty." -Type Fail ; return }
+        # Validate that the file exists at the specified path
+        if (-not(Test-Path -Path $DeploymentObjectsFilePath -PathType Leaf)) { Write-Line "The Deployment Objects file was not found at the specified path. ($DeploymentObjectsFilePath)" -Type Fail ; return }
+        # Import the Deployment Data from the .psd1 file
+        [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
+        if (-not($DeploymentData)) { Write-Line "Failed to import the Deployment Objects file. Please ensure the file is a valid .psd1 file and contains the necessary data." -Type Fail ; return }
+        # Validate the DeploymentData
+        if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { return }
+
+        # EXECUTION
         # Get the DeploymentObjects from the DeploymentData hashtable
         [System.Collections.ArrayList]$DeploymentObjects = $DeploymentData.DeploymentObjects
         # Write the amount of Deployment Objects that will be processed
         Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
-
-        # EXECUTION
         foreach ($DeploymentObject in $DeploymentObjects) {
             # Write the message to the host
             Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy

@@ -68,11 +68,11 @@ process {
         Action                      = $PSCmdlet.ParameterSetName
         SourceFilesFolder           = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { $SourceFilesFolder }
         # Folders
-        EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
         Rootfolder                  = $PSScriptRoot
+        EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
         LogFolder                   = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         # Files
-        DeploymentObjectsFileName   = 'DeploymentObjects.psd1'
+        DeploymentObjectsFilePath   = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentObjects.psd1')
         # Administrative Handlers
         TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
@@ -81,19 +81,9 @@ process {
     # Get all psm1 files in the Engines folder and import them
     Get-ChildItem -Path $Global:DeploymentObject.EnginesFolder -Filter *.psm1 -File -Recurse | ForEach-Object { Import-Module -Name $_.FullName -Force }
 
-    # DEPLOYMENT OBJECTS
-    # Validate the Deployment Objects file
-    [System.String]$DeploymentObjectsFileName = $Global:DeploymentObject.DeploymentObjectsFileName
-    [System.String]$DeploymentObjectsFilePath = Get-ChildItem -Path $PSScriptRoot -Recurse -File -Include $DeploymentObjectsFileName -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName
-    if (-not($DeploymentObjectsFilePath)) {
-        Write-Line "Deployment Objects file '$DeploymentObjectsFileName' was not found in the root folder or any subfolder." -Type Fail ; return
-    }
-    # Import and Validate the Deployment Objects from the .psd1 file
-    [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction Stop
-
     # EXECUTION
     # Deploy the Objects
-    Start-Deployment -DeploymentData $DeploymentData
+    Start-MainDeploymentProcess -DeploymentObjectsFilePath $Global:DeploymentObject.DeploymentObjectsFilePath
 }
 
 end {

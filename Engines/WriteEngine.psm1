@@ -85,23 +85,23 @@ function Write-Line {
                 'Success'           { 'Green' }
                 'SuccessNoAction'   { 'Green' }
                 'Normal'            { 'White' }
-                'Fail'              { 'White' }
+                'Fail'              { 'Red' }
                 'Special'           { 'Cyan' }
                 'Seperation'        { 'White' }
                 'DoubleSeperation'  { 'White' }
-                'ValidationFail'    { 'White' }
+                'ValidationFail'    { 'Red' }
                 Default             { 'DarkGray' }
             }
         }
 
-        # Add the BackgroundColor property
+        <# Add the BackgroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty BackgroundColor -Value {
             switch ($this.MessageType) {
                 'Fail'              { 'DarkRed' }
                 'ValidationFail'    { 'DarkRed' }
                 Default             { '' }
             }
-        }
+        }#>
 
         # WRITE METHOD
         # Add the WriteMessage method

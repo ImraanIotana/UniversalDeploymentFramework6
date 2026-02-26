@@ -42,23 +42,11 @@ function Start-Deployment {
 
         # Validate the DeploymentData hashtable
         if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { $ValidationFailed = $true }
-
-        <# Validate the ApplicationID
-        if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { $ValidationFailed = $true }
-
-        # Validate the Deployment Objects
-        [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
-        if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
-            Write-Line "Deployment Objects array contains no valid Deployment Objects." -Type Fail ; return
-        }#>
     }
 
     process {
         # If validation failed, return
         if ($ValidationFailed) { return }
-
-
-        Write-Line "RUNNING PROCESS." -Type Special
 
         # Write the success message
         Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
@@ -75,8 +63,6 @@ function Start-Deployment {
     }
     
     end {
-        # Write a completion message
-        Write-Line "Deployment process completed." -Type Success
     }
 }
 

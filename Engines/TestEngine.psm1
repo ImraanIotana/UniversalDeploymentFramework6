@@ -376,9 +376,10 @@ function Test-DeploymentObjects {
 ####################################################################################################
 function Test-DeploymentDataProperty {
     param (
-        [Parameter(Mandatory)]
+        [Parameter(Mandatory=$true, HelpMessage='The hashtable to check.')]
         [System.Collections.Hashtable]$Hashtable,
-        [Parameter(Mandatory)]
+
+        [Parameter(Mandatory=$true, HelpMessage='The key to look for in the hashtable.')]
         [System.String]$Key
     )
     begin {

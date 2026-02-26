@@ -131,32 +131,18 @@ function Test-DeploymentData {
         if (Test-String -IsEmpty $ApplicationID) { $OutputObject = $false ; return }
         # Validate the ApplicationID value against the default placeholder
         if ($ApplicationID -eq $ApplicationIDDefaultValue) {
-            Write-Line "The ApplicationID in DeploymentData is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail ; $OutputObject = $false ; return
+            Write-Line "The ApplicationID is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail ; $OutputObject = $false ; return
         }
         # Write the success message
-        Write-Line "The $PropertyName value in DeploymentData is valid. ($ApplicationID)" -Type Success
+        Write-Line "The $PropertyName is valid. ($ApplicationID)" -Type Success
 
         # VALIDATION - SOURCEFILESFOLDER
-        # Set the Property Name variable for SourceFilesFolder
-        [System.String]$PropertyName = 'SourceFilesFolder'
-        # Validate the SourceFilesFolder key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
-        # Validate the SourceFilesFolder value
-        [System.String]$SourceFilesFolder = $DeploymentData[$PropertyName]
-        if (Test-String -IsEmpty $SourceFilesFolder) { Write-Line "The $PropertyName value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
-        # Write the success message
-        Write-Line "The $PropertyName value in DeploymentData is valid. ($SourceFilesFolder)" -Type Success
+        # Validate the SourceFilesFolder
+        if (-not(Test-SourceFilesFolder -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
 
         # VALIDATION - BUILD NUMBER
-        # Set the Property Name variable for BuildNumber
-        [System.String]$PropertyName = 'BuildNumber'
-        # Validate the BuildNumber key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
-        # Validate the BuildNumber value
-        [System.String]$BuildNumber = $DeploymentData[$PropertyName]
-        if (Test-String -IsEmpty $BuildNumber) { Write-Line "The $PropertyName value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
-        # Write the success message
-        Write-Line "The $PropertyName value in DeploymentData is valid. ($BuildNumber)" -Type Success
+        # Validate the BuildNumber
+        if (-not(Test-BuildNumber -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
 
         # VALIDATION - DeploymentObjects
         # Set the Property Name variable for DeploymentObjects
@@ -165,9 +151,9 @@ function Test-DeploymentData {
         if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
         # Validate the DeploymentObjects value
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData[$PropertyName]
-        if (-not $DeploymentObjects -or $DeploymentObjects.Count -eq 0) { Write-Line "The $PropertyName value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
+        if (-not $DeploymentObjects -or $DeploymentObjects.Count -eq 0) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName value in DeploymentData is valid." -Type Success
+        Write-Line "The $PropertyName is valid." -Type Success
     }
 
     end {
@@ -177,3 +163,110 @@ function Test-DeploymentData {
 
 ####################################################################################################
 
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Tests if the provided SourceFilesFolder is valid (non-null, non-empty).
+.DESCRIPTION
+    Checks the SourceFilesFolder for validity. Ensures it is not null or empty.
+.EXAMPLE
+    Test-SourceFilesFolder -DeploymentData $DeploymentData
+.INPUTS
+    [System.Collections.Hashtable] The DeploymentData hashtable containing the SourceFilesFolder key to test.
+.OUTPUTS
+    [System.Boolean] Returns $true if valid, $false otherwise.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Test-SourceFilesFolder {
+    param (
+        [Parameter(Mandatory=$false, HelpMessage='The DeploymentData hashtable to test.')]
+        [AllowNull()][System.Collections.Hashtable]$DeploymentData
+    )
+    begin {
+        # Set the Property Name variable for SourceFilesFolder
+        [System.String]$PropertyName = 'SourceFilesFolder'
+
+        # Set the initial output value to true
+        [System.Boolean]$OutputObject = $true
+    }
+    process {
+        # Validate the SourceFilesFolder key
+        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        # Validate the SourceFilesFolder value
+        [System.String]$SourceFilesFolder = $DeploymentData[$PropertyName]
+        if (Test-String -IsEmpty $SourceFilesFolder) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
+        # Write the success message
+        Write-Line "The $PropertyName is valid. ($SourceFilesFolder)" -Type Success
+    }
+
+    end {
+        # Return the output
+        $OutputObject
+    }
+}
+
+####################################################################################################
+
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Tests if the provided BuildNumber is valid (non-null, non-empty).
+.DESCRIPTION
+    Checks the BuildNumber for validity. Ensures it is not null or empty.
+.EXAMPLE
+    Test-BuildNumber -DeploymentData $DeploymentData
+.INPUTS
+    [System.Collections.Hashtable] The DeploymentData hashtable containing the BuildNumber key to test.
+.OUTPUTS
+    [System.Boolean] Returns $true if valid, $false otherwise.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Test-BuildNumber {
+    param (
+        [Parameter(Mandatory=$false, HelpMessage='The DeploymentData hashtable to test.')]
+        [AllowNull()][System.Collections.Hashtable]$DeploymentData
+    )
+    begin {
+        # Set the Property Name variable for BuildNumber
+        [System.String]$PropertyName = 'BuildNumber'
+
+        # Set the initial output value to true
+        [System.Boolean]$OutputObject = $true
+    }
+    process {
+        # Validate the BuildNumber key
+        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        # Validate the BuildNumber value
+        [System.String]$BuildNumber = $DeploymentData[$PropertyName]
+        if (Test-String -IsEmpty $BuildNumber) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
+        # Validate the numeric format of the BuildNumber value
+        [System.Int32]$ParsedBuildNumber = [System.Int32]::TryParse($BuildNumber, [ref]$null)
+        if (-not $ParsedBuildNumber) { Write-Line "The $PropertyName value ('$BuildNumber') is not in a valid numeric format." -Type Fail ; $OutputObject = $false ; return }
+        # Write the success message
+        Write-Line "The $PropertyName is valid. ($BuildNumber)" -Type Success
+    }
+
+    end {
+        # Return the output
+        $OutputObject
+    }
+    
+}
+
+####################################################################################################

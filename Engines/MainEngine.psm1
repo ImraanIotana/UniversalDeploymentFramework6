@@ -47,19 +47,18 @@ function Start-Deployment {
     process {
         # If validation failed, return
         if ($ValidationFailed) { return }
-
-        # Write the success message
-        Write-Line "Deployment Objects imported successfully from $DeploymentObjectsFilePath" -Type Success
+        # Get the DeploymentObjects from the DeploymentData hashtable
+        [System.Collections.ArrayList]$DeploymentObjects = $DeploymentData.DeploymentObjects
         # Write the amount of Deployment Objects that will be processed
         Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
 
         # EXECUTION
-        <#foreach ($DeploymentObject in $DeploymentObjects) {
+        foreach ($DeploymentObject in $DeploymentObjects) {
             # Write the message to the host
             Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy
             # Output the Deployment Objects to the host for verification
             $DeploymentObject.GetEnumerator() | Format-Table -AutoSize
-        }#>
+        }
     }
     
     end {

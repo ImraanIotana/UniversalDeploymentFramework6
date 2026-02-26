@@ -11,7 +11,6 @@
     This function serves as the main entry point for the deployment process. It takes the file path to the deployment objects .psd1 file as input, imports the deployment data, validates it, and then processes each deployment object accordingly.
     The deployment objects are expected to be defined in a .psd1 file as a hashtable with a key named 'DeploymentObjects' that holds an array of deployment objects to be processed.
     Each deployment object should have a 'Type' property that indicates the type of deployment action to be performed, along with any other necessary properties required for that action.
-    No objects are returned to the pipeline. All operational output is written to the host and logged to the deployment logfile.
 .EXAMPLE
     Start-MainDeploymentProcess -DeploymentObjectsFilePath $DeploymentObjectsFilePath
 .INPUTS
@@ -19,7 +18,7 @@
     A string representing the file path to the deployment objects .psd1 file that will be used for processing.
     The .psd1 file must contain a hashtable with a key named 'DeploymentObjects' that holds an array of deployment objects to be processed.
 .OUTPUTS
-    This function returns no stream output.
+    No objects are returned to the pipeline. All operational output is written to the host and logged to the deployment logfile.
 .NOTES
     Version         : 6.0.0.0
     Author          : Imraan Iotana
@@ -52,11 +51,14 @@ function Start-MainDeploymentProcess {
         # Validate the DeploymentData
         if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { return }
 
+
         # EXECUTION
         # Get the DeploymentObjects from the DeploymentData hashtable
         [System.Collections.ArrayList]$DeploymentObjects = $DeploymentData.DeploymentObjects
+
         # Write the amount of Deployment Objects that will be processed
         Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
+
         foreach ($DeploymentObject in $DeploymentObjects) {
             # Write the message to the host
             Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy

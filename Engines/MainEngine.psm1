@@ -37,6 +37,9 @@ function Start-Deployment {
 
     begin {
         # VALIDATION
+        # Set the validation flag to false
+        [System.Boolean]$ValidationFailed = $false
+
         # Validate the ApplicationID
         if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { $ValidationFailed = $true }
 

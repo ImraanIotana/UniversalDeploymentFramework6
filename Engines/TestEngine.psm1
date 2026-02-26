@@ -182,7 +182,7 @@ function Test-ApplicationID {
             $OutputObject = $false ; return
         }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($ApplicationID)" #-Type Success
+        Write-Line "The $PropertyName is valid. ($ApplicationID)"
     }
     end {
         # Return the output
@@ -235,7 +235,7 @@ function Test-SourceFilesFolder {
             Write-Line "The $PropertyName ($SourceFilesFolder) cannot be found." -Type Fail ; $OutputObject = $false ; return
         }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($SourceFilesFolder)" #-Type Success
+        Write-Line "The $PropertyName is valid. ($SourceFilesFolder)"
     }
 
     end {
@@ -289,7 +289,7 @@ function Test-BuildNumber {
         [System.Int32]$ParsedBuildNumber = [System.Int32]::TryParse($BuildNumber, [ref]$null)
         if (-not $ParsedBuildNumber) { Write-Line "The $PropertyName value ('$BuildNumber') is not in a valid numeric format." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($BuildNumber)" #-Type Success
+        Write-Line "The $PropertyName is valid. ($BuildNumber)"
     }
 
     end {
@@ -341,7 +341,7 @@ function Test-DeploymentObjects {
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData[$PropertyName]
         if (-not $DeploymentObjects -or $DeploymentObjects.Count -eq 0) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName is valid." #-Type Success
+        Write-Line "The $PropertyName is valid."
     }
     end {
         # Return the output

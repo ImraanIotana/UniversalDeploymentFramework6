@@ -106,34 +106,71 @@ function Test-ApplicationID {
     [CmdletBinding()]
     [OutputType([System.Boolean])]
     param (
-        [Parameter(Mandatory=$false, HelpMessage='The ApplicationID to test.')]
-        [AllowEmptyString()][AllowNull()][System.String]$ApplicationID
+        [Parameter(Mandatory=$false,ParameterSetName='TestApplicationID',HelpMessage='The ApplicationID to test.')]
+        [AllowEmptyString()][AllowNull()][System.String]$ApplicationID,
+        
+        [Parameter(Mandatory=$false,ParameterSetName='TestDeploymentData',HelpMessage='The DeploymentData hashtable to test.')]
+        [AllowNull()][System.Collections.Hashtable]$DeploymentData
     )
 
     begin {
+        # Set the ParameterSetName variable
+        [System.String]$ParameterSetName = $PSCmdlet.ParameterSetName
         # Set the initial output value to true
         [System.Boolean]$OutputObject = $true
-
-        # Handlers
+        # Define the default placeholder value for ApplicationID
         [System.String]$ApplicationIDDefaultValue = '<<APPLICATIONID>>'
     }
 
     process {
-        # If the ApplicationID is null or empty, set the output to false
-        if (Test-String -IsEmpty $ApplicationID) { Write-Line "The ApplicationID is null or empty." -Type Fail ; $OutputObject = $false ; return }
-
-        # If the ApplicationID still is the Default placeholder value, set the output to false
-        if ($ApplicationID -eq $ApplicationIDDefaultValue) {
-            Write-Line "The ApplicationID is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail
-            $OutputObject = $false ; return
+        switch ($ParameterSetName) {
+            'TestApplicationID' {
+                # Validate ApplicationID directly
+                if (Test-String -IsEmpty $ApplicationID) {
+                    Write-Line "The ApplicationID is null or empty." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                if ($ApplicationID -eq $ApplicationIDDefaultValue) {
+                    Write-Line "The ApplicationID is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                Write-Line "ApplicationID '$ApplicationID' is valid." -Type Success
+            }
+            'TestDeploymentData' {
+                # Validate DeploymentData hashtable and its ApplicationID key
+                if (-not $DeploymentData -or $DeploymentData.Count -eq 0) {
+                    Write-Line "The DeploymentData Hashtable is null or empty." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                if (-not $DeploymentData.ContainsKey('ApplicationID')) {
+                    Write-Line "DeploymentData does not contain the key 'ApplicationID'." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                $AppID = $DeploymentData['ApplicationID']
+                if (Test-String -IsEmpty $AppID) {
+                    Write-Line "The ApplicationID in DeploymentData is null or empty." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                if ($AppID -eq $ApplicationIDDefaultValue) {
+                    Write-Line "The ApplicationID in DeploymentData is still set to the default placeholder value ($ApplicationIDDefaultValue). Please provide a valid ApplicationID." -Type Fail
+                    $OutputObject = $false
+                    return
+                }
+                Write-Line "ApplicationID '$AppID' in DeploymentData is valid." -Type Success
+            }
+            default {
+                Write-Line "Unknown parameter set: $ParameterSetName" -Type Fail
+                $OutputObject = $false
+            }
         }
-
-        # Write the message
-        Write-Line "ApplicationID '$ApplicationID' is valid." -Type Success
     }
 
     end {
-        # Return the output
         $OutputObject
     }
 }
@@ -197,7 +234,8 @@ function Test-DeploymentData {
         [System.String]$ApplicationID = $DeploymentData['ApplicationID']
 
         # Validate the ApplicationID value
-        if (-not(Test-ApplicationID -ApplicationID $ApplicationID)) { $OutputObject = $false ; return }
+        if (-not(Test-ApplicationID -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
+        #if (-not(Test-ApplicationID -ApplicationID $ApplicationID)) { $OutputObject = $false ; return }
 
         # Write the message
         Write-Line "The DeploymentData hashtable contains valid data. ($ApplicationID)" -Type Success

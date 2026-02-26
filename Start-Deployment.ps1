@@ -45,16 +45,6 @@ param (
 )
 
 begin {
-####################################################################################################
-####################################################################################################
-#region ### START USER INPUT ###
-
-# 2. SET THE SOURCE FILES FOLDER (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')
-[System.String]$SourceFilesFolder   = 'Default'
-
-#endregion ### END USER INPUT ###
-####################################################################################################
-### NO USER INPUT BELOW THIS POINT ###
 }
 
 process {
@@ -66,7 +56,6 @@ process {
         UDFVersion                  = [System.String]'6.0.0.0'
         # Deployment Handlers
         Action                      = $PSCmdlet.ParameterSetName
-        SourceFilesFolder           = if ($SourceFilesFolder -eq 'Default') { $PSScriptRoot } else { $SourceFilesFolder }
         # Folders
         Rootfolder                  = $PSScriptRoot
         EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')

@@ -40,14 +40,17 @@ function Start-Deployment {
         # Set the validation flag to false
         [System.Boolean]$ValidationFailed = $false
 
-        # Validate the ApplicationID
+        # Validate the DeploymentData hashtable
+        if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { $ValidationFailed = $true }
+
+        <# Validate the ApplicationID
         if (-not (Test-ApplicationID -ApplicationID $DeploymentData.ApplicationID)) { $ValidationFailed = $true }
 
         # Validate the Deployment Objects
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData.DeploymentObjects
         if (-not($DeploymentObjects) -or $DeploymentObjects.Count -eq 0) {
             Write-Line "Deployment Objects array contains no valid Deployment Objects." -Type Fail ; return
-        }
+        }#>
     }
 
     process {

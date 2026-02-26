@@ -109,6 +109,13 @@ function Test-DeploymentData {
         # Validate the DeploymentData hashtable
         if (-not $DeploymentData -or $DeploymentData.Count -eq 0) { Write-Line "The DeploymentData Hashtable is null or empty." -Type Fail ; $OutputObject = $false ; return }
 
+        # Validate the SourceFilesFolder key
+        if (-not $DeploymentData.ContainsKey('SourceFilesFolder')) { Write-Line "DeploymentData does not contain the key 'SourceFilesFolder'." -Type Fail ; $OutputObject = $false ; return }
+        # Validate the SourceFilesFolder value
+        [System.String]$SourceFilesFolder = $DeploymentData['SourceFilesFolder']
+        if ([System.String]::IsNullOrWhiteSpace($SourceFilesFolder)) { Write-Line "The SourceFilesFolder value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
+
+
         # VALIDATION - MEMBERS
         # Validate the ApplicationID key
         if (-not $DeploymentData.ContainsKey('ApplicationID')) { Write-Line "DeploymentData does not contain the key 'ApplicationID'." -Type Fail ; $OutputObject = $false ; return }
@@ -120,7 +127,7 @@ function Test-DeploymentData {
         if (-not(Test-ApplicationID -ApplicationID $ApplicationID)) { $OutputObject = $false ; return }
 
         # Write the message
-        Write-Line "DeploymentData contains a valid ApplicationID: '$ApplicationID'." -Type Success
+        Write-Line "The DeploymentData hashtable contains valid data. ($ApplicationID)" -Type Success
     }
 
     end {

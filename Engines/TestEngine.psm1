@@ -111,28 +111,25 @@ function Test-DeploymentData {
     begin {
         # Set the initial output value to true
         [System.Boolean]$OutputObject = $true
-        # Define the default placeholder value for ApplicationID
-        [System.String]$ApplicationIDDefaultValue = '<<APPLICATIONID>>'
     }
 
     process {
         # Validate the DeploymentData hashtable
         if (-not $DeploymentData -or $DeploymentData.Count -eq 0) { Write-Line "The DeploymentData Hashtable is null or empty." -Type Fail ; $OutputObject = $false ; return }
-
         # Validate the ApplicationID
         if (-not(Test-ApplicationID -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
-
         # Validate the SourceFilesFolder
         if (-not(Test-SourceFilesFolder -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
-
         # Validate the BuildNumber
         if (-not(Test-BuildNumber -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
-
         # Validate the DeploymentObjects
         if (-not(Test-DeploymentObjects -DeploymentData $DeploymentData)) { $OutputObject = $false ; return }
+        # Write the success message
+        Write-Line "The Deployment Data is valid." -Type Success
     }
 
     end {
+        # Return the output
         $OutputObject
     }
 }
@@ -176,7 +173,7 @@ function Test-ApplicationID {
     }
     process {
         # Validate the ApplicationID key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        if (-not(Test-DeploymentDataProperty -Hashtable $DeploymentData -Key $PropertyName)) { $OutputObject = $false ; return }
         # Validate the ApplicationID value
         [System.String]$ApplicationID = $DeploymentData[$PropertyName]
         if (Test-String -IsEmpty $ApplicationID) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
@@ -185,7 +182,7 @@ function Test-ApplicationID {
             $OutputObject = $false ; return
         }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($ApplicationID)" -Type Success
+        Write-Line "The $PropertyName is valid. ($ApplicationID)" #-Type Success
     }
     end {
         # Return the output
@@ -229,7 +226,7 @@ function Test-SourceFilesFolder {
     }
     process {
         # Validate the SourceFilesFolder key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        if (-not(Test-DeploymentDataProperty -Hashtable $DeploymentData -Key $PropertyName)) { $OutputObject = $false ; return }
         # Validate the SourceFilesFolder value
         [System.String]$SourceFilesFolder = $DeploymentData[$PropertyName]
         if (Test-String -IsEmpty $SourceFilesFolder) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
@@ -238,7 +235,7 @@ function Test-SourceFilesFolder {
             Write-Line "The $PropertyName ($SourceFilesFolder) cannot be found." -Type Fail ; $OutputObject = $false ; return
         }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($SourceFilesFolder)" -Type Success
+        Write-Line "The $PropertyName is valid. ($SourceFilesFolder)" #-Type Success
     }
 
     end {
@@ -284,7 +281,7 @@ function Test-BuildNumber {
     }
     process {
         # Validate the BuildNumber key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        if (-not(Test-DeploymentDataProperty -Hashtable $DeploymentData -Key $PropertyName)) { $OutputObject = $false ; return }
         # Validate the BuildNumber value
         [System.String]$BuildNumber = $DeploymentData[$PropertyName]
         if (Test-String -IsEmpty $BuildNumber) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
@@ -292,7 +289,7 @@ function Test-BuildNumber {
         [System.Int32]$ParsedBuildNumber = [System.Int32]::TryParse($BuildNumber, [ref]$null)
         if (-not $ParsedBuildNumber) { Write-Line "The $PropertyName value ('$BuildNumber') is not in a valid numeric format." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName is valid. ($BuildNumber)" -Type Success
+        Write-Line "The $PropertyName is valid. ($BuildNumber)" #-Type Success
     }
 
     end {
@@ -303,6 +300,7 @@ function Test-BuildNumber {
 }
 
 ####################################################################################################
+
 
 ####################################################################################################
 <#
@@ -338,12 +336,12 @@ function Test-DeploymentObjects {
     }
     process {
         # Validate the DeploymentObjects key
-        if (-not $DeploymentData.ContainsKey($PropertyName)) { Write-Line "DeploymentData does not contain the key '$PropertyName'." -Type Fail ; $OutputObject = $false ; return }
+        if (-not(Test-DeploymentDataProperty -Hashtable $DeploymentData -Key $PropertyName)) { $OutputObject = $false ; return }
         # Validate the DeploymentObjects value
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData[$PropertyName]
         if (-not $DeploymentObjects -or $DeploymentObjects.Count -eq 0) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName is valid." -Type Success
+        Write-Line "The $PropertyName is valid." #-Type Success
     }
     end {
         # Return the output
@@ -353,3 +351,53 @@ function Test-DeploymentObjects {
 
 ####################################################################################################
 
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Helper function to test if a hashtable contains a key.
+.DESCRIPTION
+    Checks if the specified key exists in the hashtable.
+.EXAMPLE
+    Test-DeploymentDataProperty -Hashtable $DeploymentData -Key 'ApplicationID'
+.INPUTS
+    [System.Collections.Hashtable] The hashtable to check.
+    [System.String] The key to look for in the hashtable.
+.OUTPUTS
+    [System.Boolean] Returns $true if the key exists, $false otherwise.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Test-DeploymentDataProperty {
+    param (
+        [Parameter(Mandatory)]
+        [System.Collections.Hashtable]$Hashtable,
+        [Parameter(Mandatory)]
+        [System.String]$Key
+    )
+    begin {
+        # Set the initial output value to true
+        [System.Boolean]$OutputObject = $true
+    }
+
+    process {
+        # Check if the hashtable contains the specified key
+        if (-not $Hashtable.ContainsKey($Key)) {
+            Write-Line "DeploymentData does not contain the key '$Key'." -Type Fail
+            $OutputObject = $false ; return
+        }
+    }
+
+    end {
+        # Return the output
+        $OutputObject
+    }
+}
+
+####################################################################################################

@@ -7,6 +7,81 @@
 ####################################################################################################
 <#
 .SYNOPSIS
+    This function tests if a String is empty or populated.
+.DESCRIPTION
+    Tests if a String is empty or populated. The function has two parameter sets: one for testing if a string is empty, and another for testing if a string is populated.
+    Depending on the parameter set used, it returns $true or $false accordingly.
+.EXAMPLE
+    Test-String -IsEmpty $MyString
+.EXAMPLE
+    Test-String -IsPopulated $MyString
+.INPUTS
+    [System.String]
+.OUTPUTS
+    [System.Boolean]
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+
+function Test-String {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true,ParameterSetName='TestStringIsEmpty',HelpMessage='The string that will be handled.')]
+        [AllowNull()][AllowEmptyString()][System.String]$IsEmpty,
+
+        [Parameter(Mandatory=$true,ParameterSetName='TestStringIsPopulated',HelpMessage='The string that will be handled.')]
+        [AllowNull()][AllowEmptyString()][System.String]$IsPopulated
+    )
+
+    begin {
+        ####################################################################################################
+        ### MAIN PROPERTIES ###
+
+        # Function
+        [System.String]$ParameterSetName = $PSCmdlet.ParameterSetName
+
+        # Input
+        [System.String]$StringToTest = switch ($ParameterSetName) {
+            'TestStringIsEmpty'     { $IsEmpty }
+            'TestStringIsPopulated' { $IsPopulated }
+        }
+
+        # Output
+        [System.Boolean]$OutputObject = $null
+
+        ####################################################################################################
+    }
+    
+    process {
+        # Test if the string is empty
+        [System.Boolean]$StringIsEmpty = if ( [System.String]::IsNullOrWhiteSpace($StringToTest) -or [System.String]::IsNullOrEmpty($StringToTest) ) { $true } else { $false }
+
+        # Set the OutputObject based on the ParameterSetName
+        $OutputObject = switch ($ParameterSetName) {
+            'TestStringIsEmpty'     { $StringIsEmpty }
+            'TestStringIsPopulated' { -Not($StringIsEmpty) }
+        }
+    }
+    
+    end {
+        # Return the output
+        $OutputObject
+    }
+}
+
+### END OF SCRIPT
+####################################################################################################
+
+
+####################################################################################################
+<#
+.SYNOPSIS
     Tests if the provided ApplicationID is valid (non-null, non-empty, and matches a pattern if needed).
 .DESCRIPTION
     Checks the ApplicationID for validity. Ensures it is not null or empty, and can be extended to validate a specific format or pattern as required by your deployment standards.
@@ -45,7 +120,7 @@ function Test-ApplicationID {
 
     process {
         # If the ApplicationID is null or empty, set the output to false
-        if ([System.String]::IsNullOrWhiteSpace($ApplicationID)) { Write-Line "The ApplicationID is null or empty." -Type Fail ; $OutputObject = $false ; return }
+        if (Test-String -IsEmpty $ApplicationID) { Write-Line "The ApplicationID is null or empty." -Type Fail ; $OutputObject = $false ; return }
 
         # If the ApplicationID still is the Default placeholder value, set the output to false
         if ($ApplicationID -eq $ApplicationIDDefaultValue) {
@@ -99,9 +174,6 @@ function Test-DeploymentData {
     begin {
         # Set the initial output value to true
         [System.Boolean]$OutputObject = $true
-
-        # Handlers
-        [System.String]$ApplicationIDDefaultValue = '<<APPLICATIONID>>'
     }
 
     process {
@@ -109,11 +181,12 @@ function Test-DeploymentData {
         # Validate the DeploymentData hashtable
         if (-not $DeploymentData -or $DeploymentData.Count -eq 0) { Write-Line "The DeploymentData Hashtable is null or empty." -Type Fail ; $OutputObject = $false ; return }
 
+        # VALIDATION - SOURCE FILES FOLDER
         # Validate the SourceFilesFolder key
         if (-not $DeploymentData.ContainsKey('SourceFilesFolder')) { Write-Line "DeploymentData does not contain the key 'SourceFilesFolder'." -Type Fail ; $OutputObject = $false ; return }
         # Validate the SourceFilesFolder value
         [System.String]$SourceFilesFolder = $DeploymentData['SourceFilesFolder']
-        if ([System.String]::IsNullOrWhiteSpace($SourceFilesFolder)) { Write-Line "The SourceFilesFolder value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
+        if (Test-String -IsEmpty $SourceFilesFolder) { Write-Line "The SourceFilesFolder value in DeploymentData is null or empty." -Type Fail ; $OutputObject = $false ; return }
 
 
         # VALIDATION - MEMBERS

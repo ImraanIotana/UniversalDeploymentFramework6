@@ -25,7 +25,8 @@
 # Add the Deployment Objects here. Please see the explanation in the lower section of this script.
 @{
     # Set the Application ID
-    ApplicationID       = '<<APPLICATIONID>>' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
+    ApplicationID       = 'Test' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
+    #ApplicationID       = '<<APPLICATIONID>>' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
     # Set the Build Number
     BuildNumber         = '01'
     # Set the Source Files Folder (If the sourcefiles are on a hardcoded location, then change this value. Else leave it as 'Default')

@@ -31,10 +31,10 @@
 function Test-String {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true,ParameterSetName='TestStringIsEmpty',HelpMessage='The string that will be handled.')]
+        [Parameter(Mandatory=$true,ParameterSetName='TestIsEmpty',HelpMessage='The string that will be handled.')]
         [AllowNull()][AllowEmptyString()][System.String]$IsEmpty,
 
-        [Parameter(Mandatory=$true,ParameterSetName='TestStringIsPopulated',HelpMessage='The string that will be handled.')]
+        [Parameter(Mandatory=$true,ParameterSetName='TestIsPopulated',HelpMessage='The string that will be handled.')]
         [AllowNull()][AllowEmptyString()][System.String]$IsPopulated
     )
 
@@ -47,8 +47,8 @@ function Test-String {
 
         # Input
         [System.String]$StringToTest = switch ($ParameterSetName) {
-            'TestStringIsEmpty'     { $IsEmpty }
-            'TestStringIsPopulated' { $IsPopulated }
+            'TestIsEmpty'       { $IsEmpty }
+            'TestIsPopulated'   { $IsPopulated }
         }
 
         # Output
@@ -63,8 +63,8 @@ function Test-String {
 
         # Set the OutputObject based on the ParameterSetName
         $OutputObject = switch ($ParameterSetName) {
-            'TestStringIsEmpty'     { $StringIsEmpty }
-            'TestStringIsPopulated' { -Not($StringIsEmpty) }
+            'TestIsEmpty'       { $StringIsEmpty }
+            'TestIsPopulated'   { -Not($StringIsEmpty) }
         }
     }
     
@@ -340,7 +340,7 @@ function Test-DeploymentObjects {
         [System.Collections.Hashtable[]]$DeploymentObjects = $DeploymentData[$PropertyName]
         if (-not $DeploymentObjects -or $DeploymentObjects.Count -eq 0) { Write-Line "The $PropertyName value is null or empty." -Type Fail ; $OutputObject = $false ; return }
         # Write the success message
-        Write-Line "The $PropertyName is valid."
+        Write-Line "The $PropertyName array is valid."
     }
     end {
         # Return the output

@@ -61,7 +61,7 @@ process {
         EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
         LogFolder                   = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         # Files
-        DeploymentObjectsFilePath   = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentObjects.psd1')
+        DeploymentObjectsFilePath   = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentData.psd1')
         # Administrative Handlers
         TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }

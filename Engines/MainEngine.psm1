@@ -133,14 +133,15 @@ function Start-Logging {
         write-line "Log file name: $LogFileName" -Type Special
         write-line "Log file path: $LogFilePath" -Type Special
 
-        <# LOGGING SETUP
+        Open-Folder -Path "C:\Users\iotan500\Downloads\Nieuw - Tekstdocument.txt"
+        # LOGGING SETUP
         # Create the Log folder if it does not exist
         if (-not(Test-Path -Path $LogFolderPath -PathType Container)) {
             New-Item -Path $LogFolderPath -ItemType Directory -Force | Out-Null
             Write-Line "Log folder created at path: $LogFolderPath" -Type Success
         }
 
-        # Initialize the deployment logfile
+        <# Initialize the deployment logfile
         $Global:DeploymentObject.LogFilePath = $LogFilePath
         New-Item -Path $Global:DeploymentObject.LogFilePath -ItemType File -Force | Out-Null
         Write-Line "Deployment logfile initialized at path: $($Global:DeploymentObject.LogFilePath)" -Type Success#>

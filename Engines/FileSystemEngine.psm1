@@ -35,23 +35,22 @@ function Open-Folder {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true,ParameterSetName='OpenFolder',HelpMessage='The path of the folder that will be opened.')]
-        [Alias('Folder')]
-        [AllowEmptyString()][System.String]$Path,
+        [Alias('Folder')][AllowEmptyString()][System.String]$Path,
 
         [Parameter(Mandatory=$true,ParameterSetName='HighlightItem',HelpMessage='The item that will be highlighted when the folder is opened.')]
-        [AllowEmptyString()][System.String]$SelectItem
+        [Alias('HighlightItem')][AllowEmptyString()][System.String]$SelectItem
     )
     
     begin {
-        # Function
+        # Set the ParameterSetName
         [System.String]$ParameterSetName    = [System.String]$PSCmdlet.ParameterSetName
-         
+
         # Input
         [System.String]$FolderToOpen        = $Path
         [System.String]$ItemToHighlight     = $SelectItem
 
         # Handlers
-        [System.String]$HighlightPrefix    = '/select,"{0}"'
+        [System.String]$HighlightPrefix     = '/select,"{0}"'
     }
     
     process {
@@ -59,11 +58,12 @@ function Open-Folder {
         switch ($ParameterSetName) {
             'OpenFolder'    {
                 if (Test-String -IsEmpty $FolderToOpen) { Write-Line "The Path string is empty." -Type Fail ; Return }
-                if (-Not(Test-Path -Path $FolderToOpen)) { Write-Line "The Folder could not be reached. ($FolderToOpen)" -Type Fail ; Return }
+                if (-Not(Test-Path -Path $FolderToOpen)) { Write-Line "The folder could not be reached: ($FolderToOpen)" -Type Fail ; Return }
+                if (-not(Test-Path -Path $FolderToOpen -PathType Container)) { Write-Line "The specified path is not a folder: ($FolderToOpen)" -Type Fail ; Return }
             }
             'HighlightItem' {
                 if (Test-String -IsEmpty $ItemToHighlight) { Write-Line "The SelectItem string is empty." -Type Fail ; Return }
-                if (-Not(Test-Path -Path $ItemToHighlight)) { Write-Line "The selected item could not be reached. ($ItemToHighlight)" -Type Fail ; Return }
+                if (-Not(Test-Path -Path $ItemToHighlight)) { Write-Line "The selected item could not be reached: ($ItemToHighlight)" -Type Fail ; Return }
             }
         }
 

@@ -42,7 +42,7 @@ function Start-Logging {
         # Set the Log folder path
         [System.String]$LogFolderPath   = $DeploymentObject.LogFolder
         # Set the Logfile name using the timestamp from the Global DeploymentObject
-        [System.String]$ApplicationID   = $DeploymentObject.DeploymentData.ApplicationID
+        [System.String]$ApplicationID   = Get-DeploymentData -PropertyName 'ApplicationID'
         [System.String]$Timestamp       = Get-TimeStamp -ForFileName
         [System.String]$Action          = $DeploymentObject.Action
         [System.String]$LogFileName     = "$($ApplicationID)_$($Timestamp)_$($Action).log"
@@ -78,3 +78,48 @@ function Start-Logging {
 
 # END OF FUNCTION
 ####################################################################################################
+
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Stops the logging process by ending the transcript session.
+.DESCRIPTION
+    This function ends the transcript session that was started by the Start-Logging function.
+.EXAMPLE
+    Stop-Logging
+.INPUTS
+    No input parameters are required for this function. It operates based on the Global DeploymentObject.
+.OUTPUTS
+    No objects are returned to the pipeline. All operational output is written to the host and logged to the deployment logfile.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+.COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Stop-Logging {
+    [CmdletBinding()]
+    param (
+    )
+
+    begin {
+        # Set the DeploymentObject
+        [PSCustomObject]$DeploymentObject = $Global:DeploymentObject
+    }
+
+    process {
+        # Stop the transcript session to finalize logging
+        Stop-Transcript | Out-Null
+        Write-Line "Stopped logging. Logfile saved at path: $($DeploymentObject.LogFilePath)" -Type Special
+    }
+    
+    end {
+    }
+}
+# END OF FUNCTION
+####################################################################################################
+

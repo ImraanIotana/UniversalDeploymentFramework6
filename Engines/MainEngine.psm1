@@ -74,6 +74,8 @@ function Start-MainDeploymentProcess {
     }
     
     end {
+        # End the logging process
+        Stop-Logging
     }
 }
 

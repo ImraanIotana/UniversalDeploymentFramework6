@@ -54,16 +54,12 @@ process {
         # Main
         Name                    = [System.String]'Universal Deployment Framework'
         UDFVersion              = [System.String]'6.0.0.0'
-        # Deployment Handlers
         Action                  = $PSCmdlet.ParameterSetName
-        # Folders
+        # Items
         Rootfolder              = $PSScriptRoot
         EnginesFolder           = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
         LogFolder               = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
-        # Files
         DeploymentDataFilePath  = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentData.psd1')
-        # Administrative Handlers
-        TimeStamp               = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
     # ENGINES
@@ -71,7 +67,7 @@ process {
     Get-ChildItem -Path $Global:DeploymentObject.EnginesFolder -Filter *.psm1 -File -Recurse | ForEach-Object { Import-Module -Name $_.FullName -Force }
 
     # EXECUTION
-    # Deploy the Objects
+    # Start the Deployment Process
     Start-MainDeploymentProcess -DeploymentDataFilePath $Global:DeploymentObject.DeploymentDataFilePath
 }
 

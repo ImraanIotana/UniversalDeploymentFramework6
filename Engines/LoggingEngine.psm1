@@ -49,10 +49,6 @@ function Start-Logging {
         # Set the full path to the Logfile
         [System.String]$LogFilePath     = Join-Path -Path $LogFolderPath -ChildPath $LogFileName
 
-        # quick test
-        write-line "Log folder path: $LogFolderPath" -Type Special
-        write-line "Log file name: $LogFileName" -Type Special
-        write-line "Log file path: $LogFilePath" -Type Special
 
         # LOGGING SETUP
         # Create the Log folder if it does not exist

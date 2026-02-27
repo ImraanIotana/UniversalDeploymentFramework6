@@ -158,13 +158,11 @@ function Write-Line {
 function Write-FullError {
     [CmdletBinding(DefaultParameterSetName='UnknownError')]
     param (
-        [Parameter(Mandatory=$true,ParameterSetName='Message',Position=0,HelpMessage='Your custom message that will be written in yellow.')]
-        [System.String]
-        $Message,
+        [Parameter(Mandatory=$false,ParameterSetName='Message',Position=0,HelpMessage='Your custom message that will be written in yellow.')]
+        [System.String]$Message,
 
         [Parameter(Mandatory=$false,ParameterSetName='UnknownError',Position=0,HelpMessage='Switch for using the default message for unknown errors.')]
-        [System.Management.Automation.SwitchParameter]
-        $UnknownError
+        [System.Management.Automation.SwitchParameter]$UnknownError
     )
     
     begin {

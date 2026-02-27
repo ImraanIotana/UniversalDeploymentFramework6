@@ -59,7 +59,7 @@ function Open-Folder {
             'OpenFolder'    {
                 if (Test-String -IsEmpty $FolderToOpen) { Write-Line "The Path string is empty." -Type Fail ; Return }
                 if (-Not(Test-Path -Path $FolderToOpen)) { Write-Line "The folder could not be reached: ($FolderToOpen)" -Type Fail ; Return }
-                if (-not(Test-Path -Path $FolderToOpen -PathType Container)) { Write-Line "The specified path is not a folder: ($FolderToOpen)" -Type Fail ; Return }
+                if (-not(Test-Path -Path $FolderToOpen -PathType Container)) { Write-Line "The specified path is not a folder: ($FolderToOpen)" -Type Fail ;Write-FullError; Return }
             }
             'HighlightItem' {
                 if (Test-String -IsEmpty $ItemToHighlight) { Write-Line "The SelectItem string is empty." -Type Fail ; Return }

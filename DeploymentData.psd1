@@ -18,7 +18,7 @@
 # Add the Deployment Objects here. Please see the explanation in the lower section of this script.
 @{
     # Set the Application ID
-    ApplicationID       = 'Test' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
+    ApplicationID       = 'Contoso_WebViewer_4.0.4' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
     #ApplicationID       = '<<APPLICATIONID>>' # (Mandatory String) Set the APPLICATION ID. This is used for logging and reporting, and must be unique for each application. Example: 'MyApplication'
     # Set the Build Number
     BuildNumber         = '01'

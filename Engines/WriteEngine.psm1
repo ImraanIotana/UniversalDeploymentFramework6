@@ -137,9 +137,9 @@ function Write-Line {
     Provides a function for writing the full details of an error to the host in yellow color, including the error message, exception type, invoking function hierarchy and error details.
     The error is also logged to a file in the log folder.
 .EXAMPLE
-    Write-FullError -Message 'The file could not be found.'
+    Write-ErrorReport -Message 'The file could not be found.'
 .EXAMPLE
-    Write-FullError
+    Write-ErrorReport -UnknownError
 .INPUTS
     [System.String]
     [System.Management.Automation.SwitchParameter]
@@ -148,40 +148,74 @@ function Write-Line {
 .NOTES
     Version         : 6.0.0.0
     Author          : Imraan Iotana
-    Creation Date   : June 2023
+    Creation Date   : February 2026
     Last Update     : February 2026
 .COPYRIGHT
     This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
 #>
 ####################################################################################################
 
-function Write-FullError {
-    [CmdletBinding(DefaultParameterSetName='UnknownError')]
+function Write-ErrorReport {
+    [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false,ParameterSetName='Message',Position=0,HelpMessage='Your custom message that will be written in yellow.')]
-        [System.String]$Message,
-
-        [Parameter(Mandatory=$false,ParameterSetName='UnknownError',Position=0,HelpMessage='Switch for using the default message for unknown errors.')]
-        [System.Management.Automation.SwitchParameter]$UnknownError
+        [Parameter(Mandatory=$true,Position=0,HelpMessage='The error record of which the details will be written.')]
+        [System.Management.Automation.ErrorRecord]$ErrorRecord
     )
     
     begin {
+        $ErrorFullName = $ErrorRecord.Exception.GetType().FullName
+        $StackTrace = $ErrorRecord.ScriptStackTrace
+        # Input
+
+        # Set the DeploymentObject
+        [PSCustomObject]$DeploymentObject   = $Global:DeploymentObject
+
+        # Logfile properties
+        [System.String]$LogFolder           = $DeploymentObject.LogFolder
+        [System.String]$ApplicationID       = $DeploymentObject.DeploymentData.ApplicationID
+        [System.String]$TimeStamp           = (Get-Date -UFormat '%Y%m%d%R') -replace ':',''
+        [System.String]$LogFileName         = "$($ApplicationID)_Errorlog_${TimeStamp}.log"
+
+        # Text properties
+        [System.String]$UnknownError        = 'An unknown error has occured.'
+        [System.String]$InvokingHierarchy   = 'InvocationOrder    : '
+
+        # Set the function for getting the invoking function hierarchy
+        function Get-InvokingFunctionHierarchy {
+            # Set the indeces
+            [System.Int32[]]$Indeces    = 0..20
+            # Get the call stack
+            [System.String[]]$CallStack = (Get-PSCallStack).Command
+
+            # Create a StringBuilder for concatenating strings
+            [System.Text.StringBuilder]$StringBuilder = [System.Text.StringBuilder]::new()
+            # Fill the StringBuilder with the invoking functions
+            foreach ($Index in $Indeces) {
+                [System.String]$FunctionName = $CallStack[$Index]
+                if ($FunctionName) {
+                    $null = $StringBuilder.AppendFormat("[{0}] {1} ", $Index, $FunctionName)
+                }
+            }
+            # Return the result
+            $StringBuilder.ToString()
+        }
+
         ####################################################################################################
         ### MAIN OBJECT ###
 
         # Set the main object
         [PSCustomObject]$Local:MainObject = @{
             # Function
-            ParameterSetName        = [System.String]$PSCmdlet.ParameterSetName
+            ParameterSetName        = [System.String]$ParameterSetName
             # Log Handlers
-            TimeStamp               = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
-            LogFolder               = [System.String]($Global:DeploymentObject.LogFolder)
-            LogFileNameCircumFix    = [System.String]"$($Global:DeploymentObject.DeploymentData.ApplicationID)_Errorlog_{0}.log"
+            TimeStamp               = [System.String]$TimeStamp
+            LogFolder               = [System.String]$LogFolder
+            LogFileName             = [System.String]$LogFileName
             # Text Handlers
-            UnknownError            = [System.String]'An unknown error has occured.'
-            InvokingHierarchy       = [System.String]'InvocationOrder    : '
+            UnknownError            = [System.String]$UnknownError
+            InvokingHierarchy       = [System.String]$InvokingHierarchy
             # Input
-            InputMessage            = $Message
+            InputMessage            = [System.String]$InputMessage
         }
 
         ####################################################################################################
@@ -190,7 +224,7 @@ function Write-FullError {
         # Add the Begin method
         Add-Member -InputObject $Local:MainObject -MemberType ScriptMethod -Name Begin -Value {
             # Add the logfile path to the main object
-            [System.String]$LogFileName = ($this.LogFileNameCircumFix -f $this.TimeStamp)
+            [System.String]$LogFileName = ($this.LogFileName -f $this.TimeStamp)
             Add-Member -InputObject $this -NotePropertyName LogFilePath -NotePropertyValue (Join-Path -Path $this.LogFolder -ChildPath $LogFileName)
             # Add the InvokingFunctionHierarchy to the main object
             $this.AddInvokingFunctionHierarchyToMainObject()
@@ -252,11 +286,11 @@ function Write-FullError {
 
         ####################################################################################################
 
-        $Local:MainObject.Begin()
+        #$Local:MainObject.Begin()
     }
     
     process {
-        $Local:MainObject.WriteFullError()
+        #$Local:MainObject.WriteFullError()
     }
     
     end {

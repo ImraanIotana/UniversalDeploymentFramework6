@@ -15,7 +15,7 @@
     Open-Folder -Path C:\Demo
     Opens the specified folder in Explorer.
 .EXAMPLE
-    Open-Folder -SelectItem C:\Demo\NewFolder
+    Open-Folder -HighlightItem C:\Demo\NewFolder
     Opens the folder and highlights the specified item in Explorer.
 .INPUTS
     [System.String]
@@ -34,11 +34,11 @@
 function Open-Folder {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$true,ParameterSetName='OpenFolder',HelpMessage='The path of the folder that will be opened.')]
+        [Parameter(Mandatory=$true,ParameterSetName='OpenTheFolder',HelpMessage='The path of the folder that will be opened.')]
         [Alias('Folder')][AllowEmptyString()][System.String]$Path,
 
-        [Parameter(Mandatory=$true,ParameterSetName='HighlightItem',HelpMessage='The item that will be highlighted when the folder is opened.')]
-        [Alias('HighlightItem')][AllowEmptyString()][System.String]$SelectItem
+        [Parameter(Mandatory=$true,ParameterSetName='HighlightTheItem',HelpMessage='The item that will be highlighted when the folder is opened.')]
+        [Alias('SelectItem')][AllowEmptyString()][System.String]$HighlightItem
     )
     
     begin {
@@ -47,48 +47,37 @@ function Open-Folder {
 
         # Input
         [System.String]$FolderToOpen        = $Path
-        [System.String]$ItemToHighlight     = $SelectItem
+        [System.String]$ItemToHighlight     = $HighlightItem
 
         # Handlers
         [System.String]$HighlightPrefix     = '/select,"{0}"'
     }
     
     process {
-        # VALIDATION
-        switch ($ParameterSetName) {
-            'OpenFolder'    {
-                if (Test-String -IsEmpty $FolderToOpen) { Write-Line "The Path string is empty." -Type Fail ; Return }
-                if (-Not(Test-Path -Path $FolderToOpen)) { Write-Line "The folder could not be reached: ($FolderToOpen)" -Type Fail ; Return }
-                if (-not(Test-Path -Path $FolderToOpen -PathType Container)) { Write-Line "The specified path is not a folder: ($FolderToOpen)" -Type Fail ;Write-FullError; Return }
-            }
-            'HighlightItem' {
-                if (Test-String -IsEmpty $ItemToHighlight) { Write-Line "The SelectItem string is empty." -Type Fail ; Return }
-                if (-Not(Test-Path -Path $ItemToHighlight)) { Write-Line "The selected item could not be reached: ($ItemToHighlight)" -Type Fail ; Return }
-            }
-        }
-
-        # EXECUTION
-        switch ($ParameterSetName) {
-            'OpenFolder'    {
-                # Open the folder
-                try {
+        try {
+            # EXECUTION
+            switch ($ParameterSetName) {
+                'OpenTheFolder'    {
+                    # Validation
+                    if (Test-String -IsEmpty $FolderToOpen) { Write-Line "The Path string is empty." -Type Fail ; return }
+                    if (-Not(Test-Path -Path $FolderToOpen)) { Write-Line "The folder could not be reached: ($FolderToOpen)" -Type Fail ; return }
+                    if (-not(Test-Path -Path $FolderToOpen -PathType Container)) { Write-Line "The specified path is not a folder: ($FolderToOpen)" -Type Fail ; return }
+                    # Open the folder
                     Write-Line "Opening folder... ($FolderToOpen)"
                     Invoke-Item -Path $FolderToOpen
                 }
-                catch {
-                    Write-FullError
-                }
-            }
-            'HighlightItem' {
-                # Open the folder
-                try {
-                    Write-Line "Selecting item... ($ItemToHighlight)"
+                'HighlightTheItem' {
+                    # Validation
+                    if (Test-String -IsEmpty $ItemToHighlight) { Write-Line "The HighlightItem string is empty." -Type Fail ; return }
+                    if (-Not(Test-Path -Path $ItemToHighlight)) { Write-Line "The item could not be reached: ($ItemToHighlight)" -Type Fail ; return }
+                    # Open the folder and highlight the item
+                    Write-Line "Highlighting item... ($ItemToHighlight)"
                     Start-Process explorer.exe -ArgumentList ($HighlightPrefix -f $ItemToHighlight)
                 }
-                catch {
-                    Write-FullError
-                }
             }
+        }
+        catch {
+            Write-ErrorReport -ErrorRecord $_
         }
 
     }

@@ -43,7 +43,7 @@ function Start-Logging {
         [System.String]$LogFolderPath   = $DeploymentObject.LogFolder
         # Set the Logfile name using the timestamp from the Global DeploymentObject
         [System.String]$ApplicationID   = $DeploymentObject.DeploymentData.ApplicationID
-        [System.String]$Timestamp       = $DeploymentObject.TimeStamp
+        [System.String]$Timestamp       = Get-TimeStamp -ForFileName
         [System.String]$Action          = $DeploymentObject.Action
         [System.String]$LogFileName     = "$($ApplicationID)_$($Timestamp)_$($Action).log"
         # Set the full path to the Logfile

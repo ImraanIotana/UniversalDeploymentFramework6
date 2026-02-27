@@ -33,43 +33,35 @@ function Start-Logging {
     )
 
     begin {
-        # Set the DeploymentObject
-        [PSCustomObject]$DeploymentObject = $Global:DeploymentObject
+        # PROPERTIES
+        # Set the Log folder path
+        [System.String]$LogFolderPath   = Get-DeploymentData -PropertyName LogFolder
+        # Set the Logfile name
+        [System.String]$ApplicationID   = Get-DeploymentData -PropertyName ApplicationID
+        [System.String]$Timestamp       = Get-TimeStamp -ForFileName
+        [System.String]$Action          = Get-DeploymentData -PropertyName Action
+        [System.String]$LogFileName     = "$($ApplicationID)_$($Timestamp)_$($Action).log"
+        # Set the full path to the Logfile
+        [System.String]$LogFilePath     = Join-Path -Path $LogFolderPath -ChildPath $LogFileName
     }
 
     process {
         # PREPARATION
-        # Set the Log folder path
-        [System.String]$LogFolderPath   = $DeploymentObject.LogFolder
-        # Set the Logfile name using the timestamp from the Global DeploymentObject
-        [System.String]$ApplicationID   = Get-DeploymentData -PropertyName 'ApplicationID'
-        [System.String]$Timestamp       = Get-TimeStamp -ForFileName
-        [System.String]$Action          = $DeploymentObject.Action
-        [System.String]$LogFileName     = "$($ApplicationID)_$($Timestamp)_$($Action).log"
-        # Set the full path to the Logfile
-        [System.String]$LogFilePath     = Join-Path -Path $LogFolderPath -ChildPath $LogFileName
-
-
-        # LOGGING SETUP
         # Create the Log folder if it does not exist
         if (Test-Path -Path $LogFolderPath -PathType Container) {
-            Write-Line "Log folder already exists at path: $LogFolderPath" -Type Success
+            Write-Line "The Log folder already exists. ($LogFolderPath)"
         } else {
             New-Item -Path $LogFolderPath -ItemType Directory -Force | Out-Null
-            Write-Line "Log folder created at path: $LogFolderPath" -Type Success
+            Write-Line "The Log folder was created at path: $LogFolderPath" -Type Success
         }
+
+        # Add the LogFilePath to the Global DeploymentObject for later use
+        Add-Member -InputObject $Global:DeploymentObject -MemberType NoteProperty -Name LogFilePath -Value $LogFilePath -Force
+
+        # LOGGING
+        # Start the logging process
         Start-Transcript -Path $LogFilePath | Out-Null
-        # Start the logging process by initializing the deployment logfile
-        #New-Item -Path $LogFilePath -ItemType File -Force | Out-Null
         Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Special
-
-        # Open the folder
-        Open-Folder -Path $LogFolderPath
-
-        <# Initialize the deployment logfile
-        $Global:DeploymentObject.LogFilePath = $LogFilePath
-        New-Item -Path $Global:DeploymentObject.LogFilePath -ItemType File -Force | Out-Null
-        Write-Line "Deployment logfile initialized at path: $($Global:DeploymentObject.LogFilePath)" -Type Success#>
     }
     
     end {
@@ -107,14 +99,14 @@ function Stop-Logging {
     )
 
     begin {
-        # Set the DeploymentObject
-        [PSCustomObject]$DeploymentObject = $Global:DeploymentObject
+        # Set the LogFilePath
+        [System.String]$LogFilePath = Get-DeploymentData -PropertyName LogFilePath
     }
 
     process {
         # Stop the transcript session to finalize logging
-        Stop-Transcript | Out-Null
-        Write-Line "Stopped logging. Logfile saved at path: $($DeploymentObject.LogFilePath)" -Type Special
+        Stop-Transcript
+        Write-Line "Stopped logging. Logfile saved at path: ($LogFilePath)" -Type Special
     }
     
     end {

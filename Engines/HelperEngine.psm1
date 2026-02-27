@@ -28,8 +28,8 @@
 function Get-TimeStamp {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false,ParameterSetName='ForFileName',HelpMessage='Use this switch to specify that the timestamp should be returned in a format suitable for filenames.')]
-        [Switch]$ForFileName
+        [Parameter(Mandatory=$false,ParameterSetName='ForFileName',HelpMessage='Switch to return the timestamp in a format suitable for filenames.')]
+        [System.Management.Automation.SwitchParameter]$ForFileName
     )
 
     begin {
@@ -83,7 +83,7 @@ function Get-TimeStamp {
 function Get-DeploymentData {
     param (
         [Parameter(Mandatory=$false,HelpMessage='Specify the name of the property to retrieve from the DeploymentData.')]
-        [ValidateSet('ApplicationID','BuildNumber','SourceFilesFolder','DeploymentObjects','Action','Rootfolder','LogFolder')]
+        [ValidateSet('ApplicationID','BuildNumber','SourceFilesFolder','DeploymentObjects','Action','Rootfolder','LogFolder','LogFilePath')]
         [System.String]$PropertyName
     )
 
@@ -112,6 +112,7 @@ function Get-DeploymentData {
             'Action'              { $DeploymentObject.Action }
             'Rootfolder'          { $DeploymentObject.Rootfolder }
             'LogFolder'           { $DeploymentObject.LogFolder }
+            'LogFilePath'         { $DeploymentObject.LogFilePath }
             Default               { Write-Line "The specified property '$PropertyName' was not found." -Type Fail ; $null }
         }
     }

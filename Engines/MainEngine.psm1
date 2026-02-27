@@ -51,7 +51,7 @@ function Start-MainDeploymentProcess {
         # Validate the DeploymentData
         if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { return }
         # Add the DeploymentData to the Global DeploymentObject for later use
-        Add-Member -InputObject $Global:DeploymentObject -MemberType NoteProperty -Name DeploymentData -Value $DeploymentData -Force | Out-Null
+        Add-Member -InputObject $Global:DeploymentObject -MemberType NoteProperty -Name DeploymentData -Value $DeploymentData -Force
 
 
         # LOGGING

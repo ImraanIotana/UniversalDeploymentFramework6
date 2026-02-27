@@ -165,7 +165,8 @@ function Write-ErrorReport {
     begin {
         $ErrorFullName = $ErrorRecord.Exception.GetType().FullName
         $StackTrace = $ErrorRecord.ScriptStackTrace
-        # Input
+        Write-Host ('Error Type: {0}' -f $ErrorFullName) -ForegroundColor Yellow
+        Write-Host ('Stack Trace: {0}' -f $StackTrace) -ForegroundColor Yellow
 
         # Set the DeploymentObject
         [PSCustomObject]$DeploymentObject   = $Global:DeploymentObject

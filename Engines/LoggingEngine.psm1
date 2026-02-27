@@ -58,6 +58,11 @@ function Start-Logging {
             New-Item -Path $LogFolderPath -ItemType Directory -Force | Out-Null
             Write-Line "Log folder created at path: $LogFolderPath" -Type Success
         }
+        Start-Transcript -Path $LogFilePath | Out-Null
+        # Start the logging process by initializing the deployment logfile
+        #New-Item -Path $LogFilePath -ItemType File -Force | Out-Null
+        Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Special
+
         # Open the folder
         Open-Folder -Path $LogFolderPath
 

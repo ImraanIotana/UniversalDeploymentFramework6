@@ -32,8 +32,8 @@
 function Start-MainDeploymentProcess {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false,HelpMessage='The path to the deployment objects file that will be used for processing.')]
-        [AllowEmptyString()][AllowNull()][System.String]$DeploymentObjectsFilePath
+        [Parameter(Mandatory=$false,HelpMessage='The path to the deployment data file that will be used for processing.')]
+        [AllowEmptyString()][AllowNull()][System.String]$DeploymentDataFilePath
     )
 
     begin {
@@ -41,13 +41,13 @@ function Start-MainDeploymentProcess {
 
     process {
         # VALIDATION
-        # Validate the Deployment Objects file
-        if (Test-String -IsEmpty $DeploymentObjectsFilePath) { Write-Line "The Deployment Objects filepath is empty." -Type Fail ; return }
+        # Validate the Deployment Data file
+        if (Test-String -IsEmpty $DeploymentDataFilePath) { Write-Line "The Deployment Data filepath is empty." -Type Fail ; return }
         # Validate that the file exists at the specified path
-        if (-not(Test-Path -Path $DeploymentObjectsFilePath -PathType Leaf)) { Write-Line "The Deployment Objects file was not found at the specified path. ($DeploymentObjectsFilePath)" -Type Fail ; return }
+        if (-not(Test-Path -Path $DeploymentDataFilePath -PathType Leaf)) { Write-Line "The Deployment Data file was not found at the specified path. ($DeploymentDataFilePath)" -Type Fail ; return }
         # Import the Deployment Data from the .psd1 file
-        [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentObjectsFilePath -ErrorAction SilentlyContinue
-        if (-not($DeploymentData)) { Write-Line "Failed to import the Deployment Objects file. Please ensure the file is a valid .psd1 file and contains the necessary data." -Type Fail ; return }
+        [System.Collections.Hashtable]$DeploymentData = Import-PowerShellDataFile -Path $DeploymentDataFilePath -ErrorAction SilentlyContinue
+        if (-not($DeploymentData)) { Write-Line "Failed to import the Deployment Data file. Please ensure the file is a valid .psd1 file and contains the necessary data." -Type Fail ; return }
         # Validate the DeploymentData
         if (-not(Test-DeploymentData -DeploymentData $DeploymentData)) { return }
         # Add the DeploymentData to the Global DeploymentObject for later use

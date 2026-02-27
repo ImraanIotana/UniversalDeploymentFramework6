@@ -52,18 +52,18 @@ process {
     # Create the Global DeploymentObject
     [PSCustomObject]$Global:DeploymentObject = @{
         # Main
-        Name                        = [System.String]'Universal Deployment Framework'
-        UDFVersion                  = [System.String]'6.0.0.0'
+        Name                    = [System.String]'Universal Deployment Framework'
+        UDFVersion              = [System.String]'6.0.0.0'
         # Deployment Handlers
-        Action                      = $PSCmdlet.ParameterSetName
+        Action                  = $PSCmdlet.ParameterSetName
         # Folders
-        Rootfolder                  = $PSScriptRoot
-        EnginesFolder               = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
-        LogFolder                   = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
+        Rootfolder              = $PSScriptRoot
+        EnginesFolder           = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
+        LogFolder               = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         # Files
-        DeploymentObjectsFilePath   = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentData.psd1')
+        DeploymentDataFilePath  = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentData.psd1')
         # Administrative Handlers
-        TimeStamp                   = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
+        TimeStamp               = [System.String]((Get-Date -UFormat '%Y%m%d%R') -replace ':','')
     }
 
     # ENGINES
@@ -72,7 +72,7 @@ process {
 
     # EXECUTION
     # Deploy the Objects
-    Start-MainDeploymentProcess -DeploymentObjectsFilePath $Global:DeploymentObject.DeploymentObjectsFilePath
+    Start-MainDeploymentProcess -DeploymentDataFilePath $Global:DeploymentObject.DeploymentDataFilePath
 }
 
 end {

@@ -36,6 +36,8 @@ function Get-TimeStamp {
         # PROPERTIES
         # Set the ParameterSetName
         [System.String]$ParameterSetName    = $PSCmdlet.ParameterSetName
+        # Get the UTC Timestamp
+        [System.DateTime]$UTCTimestamp      = (Get-Date).ToUniversalTime()
         # Set the output
         [System.String]$OutputObject        = [System.String]::Empty
     }
@@ -44,8 +46,8 @@ function Get-TimeStamp {
         # EXECUTION
         # Switch the timestamp format based on the ParameterSetName
         $OutputObject = switch ($ParameterSetName) {
-            'ForFileName'   { (Get-Date).ToString('yyyyMMdd_HHmm') }
-            Default         { Get-Date }
+            'ForFileName'   { $UTCTimestamp.ToString('yyyy_MM_dd_HHmm') }
+            Default         { $UTCTimestamp.ToString() }
         }
     }
     
@@ -83,7 +85,7 @@ function Get-TimeStamp {
 function Get-DeploymentData {
     param (
         [Parameter(Mandatory=$false,HelpMessage='Specify the name of the property to retrieve from the DeploymentData.')]
-        [ValidateSet('ApplicationID','BuildNumber','SourceFilesFolder','DeploymentObjects','Action','Rootfolder','LogFolder','LogFilePath')]
+        [ValidateSet('ApplicationID','BuildNumber','SourceFilesFolder','DeploymentObjects','Action','Rootfolder','LogFolder','LogFilePath','UDFVersion')]
         [System.String]$PropertyName
     )
 
@@ -113,6 +115,7 @@ function Get-DeploymentData {
             'Rootfolder'          { $DeploymentObject.Rootfolder }
             'LogFolder'           { $DeploymentObject.LogFolder }
             'LogFilePath'         { $DeploymentObject.LogFilePath }
+            'UDFVersion'          { $DeploymentObject.UDFVersion }
             Default               { Write-Line "The specified property '$PropertyName' was not found." -Type Fail ; $null }
         }
     }

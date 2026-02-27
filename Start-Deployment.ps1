@@ -58,7 +58,6 @@ process {
         # Items
         Rootfolder              = $PSScriptRoot
         EnginesFolder           = (Join-Path -Path $PSScriptRoot -ChildPath 'Engines')
-        LogFolder               = (Join-Path -Path $ENV:ProgramData -ChildPath 'Application Installation Logs')
         DeploymentDataFilePath  = (Join-Path -Path $PSScriptRoot -ChildPath 'DeploymentData.psd1')
     }
 

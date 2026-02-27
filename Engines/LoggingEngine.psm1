@@ -34,36 +34,48 @@ function Start-Logging {
 
     begin {
         # PROPERTIES
-        # Set the Log folder path
-        [System.String]$LogFolderPath   = Get-DeploymentData -PropertyName LogFolder
-        # Set the Logfile name
-        [System.String]$ApplicationID   = Get-DeploymentData -PropertyName ApplicationID
-        [System.String]$Timestamp       = Get-TimeStamp -ForFileName
-        [System.String]$Action          = Get-DeploymentData -PropertyName Action
-        [System.String]$LogFileName     = "$($ApplicationID)_$($Timestamp)_$($Action).log"
-        # Set the full path to the Logfile
-        [System.String]$LogFilePath     = Join-Path -Path $LogFolderPath -ChildPath $LogFileName
+        # Set the LogFolder
+        [System.String]$LogFolder = Join-Path -Path $ENV:ProgramData -ChildPath 'ApplicationDeploymentLogs'
+        # Add the LogFolder to the Global DeploymentObject for later use
+        Add-Member -InputObject $Global:DeploymentObject -MemberType NoteProperty -Name LogFolder -Value $LogFolder -Force
     }
 
     process {
-        # PREPARATION
+        # PREPARATION - PROPERTIES
+        # Set the Log folder path
+        [System.String]$LogFolderPath           = Get-DeploymentData -PropertyName LogFolder
+        [System.String]$ApplicationID           = Get-DeploymentData -PropertyName ApplicationID
+        [System.String]$ApplicationLogFolder    = Join-Path -Path $LogFolderPath -ChildPath $ApplicationID
+        # Set the Logfile name
+        [System.String]$Timestamp               = Get-TimeStamp -ForFileName
+        [System.String]$Action                  = Get-DeploymentData -PropertyName Action
+        [System.String]$LogFileName             = "$($ApplicationID)_UTC_$($Timestamp)_$($Action).log"
+        # Set the full path to the Logfile
+        [System.String]$LogFilePath             = Join-Path -Path $ApplicationLogFolder -ChildPath $LogFileName
+        # Get the UDF version from the Global DeploymentObject
+        [System.String]$UDFVersion              = Get-DeploymentData -PropertyName UDFVersion
+
+        # PREPARATION - LOG FOLDER
         # Create the Log folder if it does not exist
-        if (Test-Path -Path $LogFolderPath -PathType Container) {
-            Write-Line "The Log folder already exists. ($LogFolderPath)"
+        if (Test-Path -Path $ApplicationLogFolder -PathType Container) {
+            Write-Line "The Log folder already exists. ($ApplicationLogFolder)"
         } else {
-            New-Item -Path $LogFolderPath -ItemType Directory -Force | Out-Null
-            Write-Line "The Log folder was created at path: $LogFolderPath" -Type Success
+            New-Item -Path $ApplicationLogFolder -ItemType Directory -Force | Out-Null
+            Write-Line "The Log folder was created at path: $ApplicationLogFolder" -Type Success
         }
 
         # Add the LogFilePath to the Global DeploymentObject for later use
         Add-Member -InputObject $Global:DeploymentObject -MemberType NoteProperty -Name LogFilePath -Value $LogFilePath -Force
 
-        # LOGGING
+        # LOGGING - START
         # Start the logging process
         Start-Transcript -Path $LogFilePath | Out-Null
         Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Special
+
+        # Write the Copyright notice to the log
+        Write-Line "This Deployment will be executed by the Universal Deployment Framework version ($UDFVersion). Copyright (C) Iotana. All rights reserved."
     }
-    
+
     end {
     }
 }
@@ -105,8 +117,8 @@ function Stop-Logging {
 
     process {
         # Stop the transcript session to finalize logging
-        Stop-Transcript
         Write-Line "Stopped logging. Logfile saved at path: ($LogFilePath)" -Type Special
+        Stop-Transcript | Out-Null
     }
     
     end {

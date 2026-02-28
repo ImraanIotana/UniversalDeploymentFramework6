@@ -67,7 +67,7 @@ function Start-MainDeploymentProcess {
             # Process each Deployment Object    
             foreach ($DeploymentObject in $DeploymentObjects) {
                 # Write the message to the host
-                Write-Line -Type DoubleSeparation
+                Write-Line -Type DoubleSeparator
                 Write-Line "Processing Deployment Object ($CurrentDeploymentObjectIndex of $DeploymentObjectCount) of type ($($DeploymentObject.Type))..." -Type Busy
                 # Output the Deployment Objects to the host for verification
                 $DeploymentObject.GetEnumerator() | Format-Table -AutoSize

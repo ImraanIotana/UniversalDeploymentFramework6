@@ -232,7 +232,7 @@ function Start-GlobalTimer {
         # Start the global timer by storing the current timestamp in a global variable
         $Global:UDF_GlobalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         # Log the start time of the deployment process
-        Write-Line -Type DoubleSeparation
+        Write-Line -Type DoubleSeparator
         Write-Line "Deployment process started at $(Get-TimeStamp -ForHost)"
     }
 

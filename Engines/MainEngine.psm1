@@ -49,8 +49,10 @@ function Start-MainDeploymentProcess {
             # Start the logging process
             Start-Logging
     
-            # PREPARATION - SIZE CALCULATION
-            # Get the size of the root folder in Megabytes and write it to the host
+            # PREPARATION - FOLDER
+            # Set the Workfolder for the deployment process
+            Set-WorkFolder
+            # Get the size of the Workfolder in Megabytes and write it to the host
             Get-FolderSize -FolderPath (Get-DeploymentData -PropertyName Rootfolder)
 
             # PREPARATION

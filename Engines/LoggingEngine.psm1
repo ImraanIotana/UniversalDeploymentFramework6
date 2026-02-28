@@ -74,7 +74,8 @@ function Start-Logging {
 
         # Write the Copyright notice to the log
         Write-Line "This Deployment is executed by the Universal Deployment Framework version ($UDFVersion). Copyright (C) Iotana. All rights reserved."
-        Write-Line "This Deployment is performed on machine ($ENV:COMPUTERNAME) by user ($ENV:USERNAME)."
+        Write-Line "This Deployment is performed by user ($ENV:USERNAME) on machine ($ENV:COMPUTERNAME)."
+        Write-Line "All timestamps are in UTC."
     }
 
     end {

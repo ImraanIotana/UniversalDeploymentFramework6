@@ -38,23 +38,24 @@ function Get-TimeStamp {
     begin {
         # PROPERTIES
         # Set the ParameterSetName
-        [System.String]$ParameterSetName    = $PSCmdlet.ParameterSetName
-        # Get the UTC Timestamp
-        [System.DateTime]$UTCTimestamp      = (Get-Date).ToUniversalTime()
+        [System.String]$ParameterSetName        = $PSCmdlet.ParameterSetName
+        # Get the UTC TimeStamp
+        [System.DateTime]$UTCTimeStamp          = (Get-Date).ToUniversalTime()
         # Set the variations
-        [System.String]$LogDate = $UTCTimeStamp.ToString('yyyy-MM-dd')
-        [System.String]$LogTime = $UTCTimeStamp.ToString('HH:mm:ss.fff')
+        [System.String]$TimeStampForFileName    = $UTCTimeStamp.ToString('yyyy_MM_dd_HHmm')
+        [System.String]$TimeStampDateForHost    = $UTCTimeStamp.ToString('yyyy-MM-dd')
+        [System.String]$TimeStampTimeForHost    = $UTCTimeStamp.ToString('HH:mm:ss.fff')
         # Set the output
-        [System.String]$OutputObject        = [System.String]::Empty
+        [System.String]$OutputObject            = [System.String]::Empty
     }
 
     process {
         # EXECUTION
         # Switch the timestamp format based on the ParameterSetName
         $OutputObject = switch ($ParameterSetName) {
-            'ForFileName'   { $UTCTimestamp.ToString('yyyy_MM_dd_HHmm') }
-            'ForHost'       { "[$LogDate $LogTime]" }
-            Default         { $UTCTimestamp.ToString() }
+            'ForFileName'   { $TimeStampForFileName }
+            'ForHost'       { "[$TimeStampDateForHost $TimeStampTimeForHost]" }
+            Default         { $UTCTimeStamp.ToString() }
         }
     }
     
@@ -284,6 +285,50 @@ function Stop-GlobalTimer {
             # Log a warning if the global timer was not started
             Write-Line "The Global timer was not started." -Type Fail
         }
+    }
+
+    end {}
+}
+
+# END OF FUNCTION
+####################################################################################################
+
+
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Sets the work folder for the deployment process.
+.DESCRIPTION
+    This function sets the work folder for the deployment process.
+.EXAMPLE
+    Set-WorkFolder
+.INPUTS
+    None
+.OUTPUTS
+    None. All operational output is written to the host and logged to the deployment logfile.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+    .COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Set-WorkFolder {
+    [CmdletBinding()]
+    param ()
+
+    begin {
+    }
+
+    process {
+        # Get the Rootfolder from the Global DeploymentObject
+        [System.String]$Rootfolder = Get-DeploymentData -PropertyName Rootfolder
+        # Set the Rootfolder as the current location
+        Write-Line "Setting the folder where this script is located (Start-Deployment.ps1) as the Workfolder for the deployment process. ($Rootfolder)" -Type Busy
+        Set-Location -Path $Rootfolder
     }
 
     end {}

@@ -139,51 +139,75 @@ function Get-DeploymentData {
 
 
 ####################################################################################################
-#
-# .SYNOPSIS
-#   Starts a global timer for measuring elapsed time across the deployment process.
-# .DESCRIPTION
-#   Stores the current timestamp in a global variable for later use.
-# .NOTES
-#   Version         : 6.0.0.0
-#   Author          : Imraan Iotana
-#   Creation Date   : February 2026
-#   Last Update     : February 2026
-#
+<#
+.SYNOPSIS
+    Starts the global timer for the deployment process.
+.DESCRIPTION
+    This function starts a global timer by storing the current timestamp in a global variable. It is used to measure the elapsed time of the deployment process.
+    It also logs the start time of the deployment process to the host.
+.EXAMPLE
+    Start-GlobalTimer
+.INPUTS
+    None
+.OUTPUTS
+    None. All operational output is written to the host and logged to the deployment logfile.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+    .COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
 function Start-GlobalTimer {
     [CmdletBinding()]
     param ()
 
-    begin {
-    }
+    begin {}
+
     process {
         # Start the global timer by storing the current timestamp in a global variable
         $Global:UDF_GlobalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         # Log the start time of the deployment process
         Write-Line "Deployment process started at $(Get-TimeStamp -ForHost)"
     }
-    end{
-    }
+
+    end{}
 }
 
+# END OF FUNCTION
 ####################################################################################################
-#
-# .SYNOPSIS
-#   Stops the global timer and reports elapsed time.
-# .DESCRIPTION
-#   Calculates the elapsed time since Start-GlobalTimer was called and writes it to the host.
-# .NOTES
-#   Version         : 6.0.0.0
-#   Author          : Imraan Iotana
-#   Creation Date   : February 2026
-#   Last Update     : February 2026
-#
+
+
+####################################################################################################
+<#
+.SYNOPSIS
+    Stops the global timer and reports elapsed time.
+.DESCRIPTION
+    This function stops the global timer that was started by Start-GlobalTimer and reports the elapsed time of the deployment process.
+    It also logs the completion time of the deployment process to the host.
+.EXAMPLE
+    Stop-GlobalTimer
+.INPUTS
+    None
+.OUTPUTS
+    None. All operational output is written to the host and logged to the deployment logfile.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+    .COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
 function Stop-GlobalTimer {
     [CmdletBinding()]
     param ()
 
-    begin {
-    }
+    begin {}
+
     process {
         # Stop the global timer and report elapsed time
         if ($Global:UDF_GlobalStopwatch) {
@@ -195,7 +219,9 @@ function Stop-GlobalTimer {
             Write-Line "The Global timer was not started." -Type Fail
         }
     }
-    end {
-    }
+
+    end {}
 }
 
+# END OF FUNCTION
+####################################################################################################

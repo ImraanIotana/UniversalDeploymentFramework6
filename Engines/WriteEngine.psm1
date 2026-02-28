@@ -48,8 +48,8 @@ function Write-Line {
         [System.String]$OriginalMessage     = $Message
         [System.String]$MessageType         = $Type
         [System.String]$TimeStamp           = Get-TimeStamp -ForHost
-        [System.String]$DeploymentAction    = Get-DeploymentData -PropertyName Action
-        [System.String]$CallingFunction     = "[$((Get-PSCallStack).Command[1])]:" # Get the name of the calling function
+        [System.String]$DeploymentAction    = $Global:DeploymentObject.Action # When using "Get-DeploymentData -PropertyName Action", it causes a loop.
+        [System.String]$CallingFunction     = "[$((Get-PSCallStack).Command[1])]:"
 
         ####################################################################################################
     }

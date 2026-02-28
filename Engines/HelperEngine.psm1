@@ -172,7 +172,7 @@ function Get-FolderSize {
 
     begin {
         # Set the output
-        [System.Double]$SizeMB = 0.0
+        [System.Double]$SizeInMB = 0.0
     }
 
     process {
@@ -183,10 +183,10 @@ function Get-FolderSize {
             # Get the size of the folder in Megabytes
             [System.IO.DirectoryInfo]$Directory = [System.IO.DirectoryInfo]::new($FolderPath)
             [System.Int64]$TotalBytes = ($Directory.EnumerateFiles('*', 'AllDirectories') | Measure-Object -Property Length -Sum).Sum
-            [System.Double]$SizeMB = [System.Math]::Round($TotalBytes / 1MB, 2)
+            [System.Double]$SizeInMB = [System.Math]::Round($TotalBytes / 1MB, 2)
             
             # Write the size of the folder to the host
-            Write-Line "The size of the Workfolder is $SizeMB MB. ($FolderPath)"
+            Write-Line "The size of the Workfolder is $SizeInMB MB. ($FolderPath)"
         }
         catch {
             Write-ErrorReport -ErrorRecord $_
@@ -195,7 +195,7 @@ function Get-FolderSize {
     
     end {
         # Return the output if PassThru is specified
-        if ($PassThru) { $SizeMB }
+        if ($PassThru) { $SizeInMB }
     }
 }
 

@@ -70,11 +70,11 @@ function Start-Logging {
         # LOGGING - START
         # Start the logging process
         Start-Transcript -Path $LogFilePath | Out-Null
-        Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Busy
+        Write-Line "Started logging. Logfile: ($LogFilePath)"
 
         # Write the Copyright notice to the log
         Write-Line "This Deployment is executed by the Universal Deployment Framework version ($UDFVersion). Copyright (C) Iotana. All rights reserved."
-        Write-Line "This Deployment is executed by user ($ENV:USERNAME) on machine ($ENV:COMPUTERNAME)."
+        Write-Line "This Deployment is performed on machine ($ENV:COMPUTERNAME) by user ($ENV:USERNAME)."
     }
 
     end {

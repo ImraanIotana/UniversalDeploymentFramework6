@@ -91,7 +91,7 @@ function Get-TimeStamp {
 ####################################################################################################
 function Get-DeploymentData {
     param (
-        [Parameter(Mandatory=$false,HelpMessage='Specify the name of the property to retrieve from the DeploymentData.')]
+        [Parameter(Mandatory=$true,HelpMessage='Specify the name of the property to retrieve from the DeploymentData.')]
         [ValidateSet('ApplicationID','BuildNumber','SourceFilesFolder','DeploymentObjects','Action','Rootfolder','LogFolder','LogFilePath','UDFVersion')]
         [System.String]$PropertyName
     )
@@ -141,6 +141,68 @@ function Get-DeploymentData {
 ####################################################################################################
 <#
 .SYNOPSIS
+    Returns the size of a folder in Megabytes.
+.DESCRIPTION
+    This function returns the size of the specified folder in Megabytes. It recursively calculates the size of all files within the folder and its subfolders.
+.EXAMPLE
+    Get-FolderSize -FolderPath "C:\MyFolder"
+.INPUTS
+    [System.String]$FolderPath
+    A string representing the path to the folder for which the size will be calculated.
+.OUTPUTS
+    [System.Double] The size of the folder in Megabytes.
+.NOTES
+    Version         : 6.0.0.0
+    Author          : Imraan Iotana
+    Creation Date   : February 2026
+    Last Update     : February 2026
+    .COPYRIGHT
+    This script is part of the Universal Deployment Framework. Copyright (C) Iotana. All rights reserved.
+#>
+####################################################################################################
+function Get-FolderSize {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false,HelpMessage='The path to the folder for which the size will be calculated.')]
+        [System.String]$FolderPath
+    )
+
+    begin {
+        # Set the output
+        [System.Double]$SizeMB = 0.0
+    }
+
+    process {
+        try {
+            # EXECUTION
+            # Validate the folder path
+            if (-not (Test-Path -Path $FolderPath -PathType Container)) { Write-Line "The specified folder path was not found." -Type Fail ; return }
+            # Get the size of the folder in Megabytes
+            [System.IO.DirectoryInfo]$Directory = [System.IO.DirectoryInfo]::new($FolderPath)
+            $TotalBytes = $Directory.EnumerateFiles('*', 'AllDirectories').Sum({ $_.Length })
+            [System.Double]$SizeMB = [math]::Round($TotalBytes / 1MB, 2)
+            
+            # Write the size of the folder to the host
+            Write-Line "The size of the folder '$FolderPath' is $SizeMB MB." -Type Special
+        }
+        catch {
+            Write-ErrorReport -ErrorRecord $_
+        }
+    }
+    
+    end {
+        # Return the output
+        $SizeMB
+    }
+}
+
+# END OF FUNCTION
+####################################################################################################
+
+
+####################################################################################################
+<#
+.SYNOPSIS
     Starts the global timer for the deployment process.
 .DESCRIPTION
     This function starts a global timer by storing the current timestamp in a global variable. It is used to measure the elapsed time of the deployment process.
@@ -170,6 +232,7 @@ function Start-GlobalTimer {
         # Start the global timer by storing the current timestamp in a global variable
         $Global:UDF_GlobalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         # Log the start time of the deployment process
+        Write-Line -Type DoubleSeparation
         Write-Line "Deployment process started at $(Get-TimeStamp -ForHost)"
     }
 

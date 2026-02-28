@@ -41,28 +41,33 @@ function Start-MainDeploymentProcess {
 
     process {
         try {
-            # IMPORT
+            # PREPARATION - IMPORT
             # Import the Deployment Data (This action needs to happen before all else, as the deployment data contains all the necessary information for the deployment process)
             if (-not(Import-DeploymentData -DeploymentDataFilePath $DeploymentDataFilePath)) { return }
 
-            # LOGGING
+            # PREPARATION - LOGGING
             # Start the logging process
             Start-Logging
     
-            # EXECUTION
+            # PREPARATION - SIZE CALCULATION
+            # Get the size of the root folder in Megabytes and write it to the host
+            Get-FolderSize -FolderPath (Get-DeploymentData -PropertyName Rootfolder)
+
+            # PREPARATION
             # Get the DeploymentObjects from the DeploymentData hashtable
             [System.Collections.ArrayList]$DeploymentObjects = Get-DeploymentData -PropertyName DeploymentObjects
-    
             # Get the amount
             [System.Int32]$DeploymentObjectCount = $DeploymentObjects.Count
             # Write the amount of Deployment Objects that will be processed
-            Write-Line "A total of $DeploymentObjectCount Deployment Objects will be processed." -Type Busy
+            Write-Line "A total of $DeploymentObjectCount Deployment Objects will be processed." -Type Special
             # Set the counter for the current Deployment Object
             [System.Int32]$CurrentDeploymentObjectIndex = 1
+
+            # EXECUTION
             # Process each Deployment Object    
             foreach ($DeploymentObject in $DeploymentObjects) {
                 # Write the message to the host
-                Write-Line -Type Separation
+                Write-Line -Type DoubleSeparation
                 Write-Line "Processing Deployment Object ($CurrentDeploymentObjectIndex of $DeploymentObjectCount) of type ($($DeploymentObject.Type))..." -Type Busy
                 # Output the Deployment Objects to the host for verification
                 $DeploymentObject.GetEnumerator() | Format-Table -AutoSize

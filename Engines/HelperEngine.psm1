@@ -164,7 +164,10 @@ function Get-FolderSize {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$false,HelpMessage='The path to the folder for which the size will be calculated.')]
-        [System.String]$FolderPath
+        [System.String]$FolderPath,
+
+        [Parameter(Mandatory=$false,HelpMessage='Switch for returning the output.')]
+        [System.Management.Automation.SwitchParameter]$PassThru
     )
 
     begin {
@@ -179,11 +182,11 @@ function Get-FolderSize {
             if (-not (Test-Path -Path $FolderPath -PathType Container)) { Write-Line "The specified folder path was not found." -Type Fail ; return }
             # Get the size of the folder in Megabytes
             [System.IO.DirectoryInfo]$Directory = [System.IO.DirectoryInfo]::new($FolderPath)
-            $TotalBytes = $Directory.EnumerateFiles('*', 'AllDirectories').Sum({ $_.Length })
-            [System.Double]$SizeMB = [math]::Round($TotalBytes / 1MB, 2)
+            [System.Int64]$TotalBytes = ($Directory.EnumerateFiles('*', 'AllDirectories') | Measure-Object -Property Length -Sum).Sum
+            [System.Double]$SizeMB = [System.Math]::Round($TotalBytes / 1MB, 2)
             
             # Write the size of the folder to the host
-            Write-Line "The size of the folder '$FolderPath' is $SizeMB MB." -Type Special
+            Write-Line "The size of the Workfolder is $SizeMB MB. ($FolderPath)"
         }
         catch {
             Write-ErrorReport -ErrorRecord $_
@@ -191,8 +194,8 @@ function Get-FolderSize {
     }
     
     end {
-        # Return the output
-        $SizeMB
+        # Return the output if PassThru is specified
+        if ($PassThru) { $SizeMB }
     }
 }
 

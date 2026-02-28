@@ -53,14 +53,21 @@ function Start-MainDeploymentProcess {
             # Get the DeploymentObjects from the DeploymentData hashtable
             [System.Collections.ArrayList]$DeploymentObjects = Get-DeploymentData -PropertyName DeploymentObjects
     
+            # Get the amount
+            [System.Int32]$DeploymentObjectCount = $DeploymentObjects.Count
             # Write the amount of Deployment Objects that will be processed
-            Write-Line "A total of $($DeploymentObjects.Count) Deployment Objects will be processed." -Type Special
-    
+            Write-Line "A total of $DeploymentObjectCount Deployment Objects will be processed." -Type Busy
+            # Set the counter for the current Deployment Object
+            [System.Int32]$CurrentDeploymentObjectIndex = 1
+            # Process each Deployment Object    
             foreach ($DeploymentObject in $DeploymentObjects) {
                 # Write the message to the host
-                Write-Line "Processing Deployment Object of type '$($DeploymentObject.Type)'..." -Type Busy
+                Write-Line -Type Seperation
+                Write-Line "Processing Deployment Object ($CurrentDeploymentObjectIndex of $DeploymentObjectCount) of type ($($DeploymentObject.Type))..." -Type Busy
                 # Output the Deployment Objects to the host for verification
                 $DeploymentObject.GetEnumerator() | Format-Table -AutoSize
+                # Increment the counter for the current Deployment Object
+                $CurrentDeploymentObjectIndex++
             }
         }
         catch {
@@ -69,6 +76,8 @@ function Start-MainDeploymentProcess {
     }
     
     end {
+        # Stop the global timer and report elapsed time
+        Stop-GlobalTimer
         # End the logging process
         Stop-Logging
     }

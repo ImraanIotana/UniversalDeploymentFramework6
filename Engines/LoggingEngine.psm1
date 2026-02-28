@@ -70,10 +70,11 @@ function Start-Logging {
         # LOGGING - START
         # Start the logging process
         Start-Transcript -Path $LogFilePath | Out-Null
-        Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Special
+        Write-Line "Started logging. Logfile: ($LogFilePath)" -Type Busy
 
         # Write the Copyright notice to the log
-        Write-Line "This Deployment will be executed by the Universal Deployment Framework version ($UDFVersion). Copyright (C) Iotana. All rights reserved."
+        Write-Line "This Deployment is executed by the Universal Deployment Framework version ($UDFVersion). Copyright (C) Iotana. All rights reserved."
+        Write-Line "This Deployment is executed by user ($ENV:USERNAME) on machine ($ENV:COMPUTERNAME)."
     }
 
     end {
@@ -117,7 +118,7 @@ function Stop-Logging {
 
     process {
         # Stop the transcript session to finalize logging
-        Write-Line "Stopped logging. Logfile saved at path: ($LogFilePath)" -Type Special
+        Write-Line "Stopped logging. Logfile saved at path: ($LogFilePath)" -Type Busy
         Stop-Transcript | Out-Null
     }
     

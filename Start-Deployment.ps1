@@ -66,6 +66,8 @@ process {
     Get-ChildItem -Path $Global:DeploymentObject.EnginesFolder -Filter *.psm1 -File -Recurse | ForEach-Object { Import-Module -Name $_.FullName -Force }
 
     # EXECUTION
+    # Start the global timer for the deployment process
+    Start-GlobalTimer
     # Start the Deployment Process
     Start-MainDeploymentProcess -DeploymentDataFilePath $Global:DeploymentObject.DeploymentDataFilePath
 }

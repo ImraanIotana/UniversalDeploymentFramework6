@@ -35,7 +35,7 @@ function Write-Line {
         [System.String]$Message,
 
         [Parameter(Mandatory=$false,HelpMessage='Type for deciding the colors.')]
-        [ValidateSet('Busy','Success','Fail','Normal','Special','NoAction','SuccessNoAction','ValidationSuccess','ValidationFail','Seperation','DoubleSeperation')]
+        [ValidateSet('Busy','Success','Fail','Normal','Info','Special','NoAction','SuccessNoAction','ValidationSuccess','ValidationFail','Seperation','DoubleSeperation')]
         [AllowNull()][AllowEmptyString()]
         [System.String]$Type
     )
@@ -90,18 +90,20 @@ function Write-Line {
                 'Seperation'        { 'White' }
                 'DoubleSeperation'  { 'White' }
                 'ValidationFail'    { 'Red' }
+                'Info'              { 'White' }
                 Default             { 'DarkGray' }
             }
         }
 
-        <# Add the BackgroundColor property
+        # Add the BackgroundColor property
         $MessageObject | Add-Member -MemberType ScriptProperty BackgroundColor -Value {
             switch ($this.MessageType) {
-                'Fail'              { 'DarkRed' }
-                'ValidationFail'    { 'DarkRed' }
+                'Fail'              { '' }
+                'ValidationFail'    { '' }
+                'Info'              { 'Gray' }
                 Default             { '' }
             }
-        }#>
+        }
 
         # WRITE METHOD
         # Add the WriteMessage method

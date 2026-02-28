@@ -29,7 +29,10 @@ function Get-TimeStamp {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$false,ParameterSetName='ForFileName',HelpMessage='Switch to return the timestamp in a format suitable for filenames.')]
-        [System.Management.Automation.SwitchParameter]$ForFileName
+        [System.Management.Automation.SwitchParameter]$ForFileName,
+
+        [Parameter(Mandatory=$false,ParameterSetName='Default',HelpMessage='Returns the timestamp in the default format.')]
+        [System.Management.Automation.SwitchParameter]$ForHost
     )
 
     begin {
@@ -38,6 +41,9 @@ function Get-TimeStamp {
         [System.String]$ParameterSetName    = $PSCmdlet.ParameterSetName
         # Get the UTC Timestamp
         [System.DateTime]$UTCTimestamp      = (Get-Date).ToUniversalTime()
+        # Set the variations
+        [System.String]$LogDate = $UTCTimeStamp.ToString('yyyy-MM-dd')
+        [System.String]$LogTime = $UTCTimeStamp.ToString('HH:mm:ss.fff')
         # Set the output
         [System.String]$OutputObject        = [System.String]::Empty
     }
@@ -47,6 +53,7 @@ function Get-TimeStamp {
         # Switch the timestamp format based on the ParameterSetName
         $OutputObject = switch ($ParameterSetName) {
             'ForFileName'   { $UTCTimestamp.ToString('yyyy_MM_dd_HHmm') }
+            'ForHost'       { "$LogDate $LogTime" }
             Default         { $UTCTimestamp.ToString() }
         }
     }
@@ -129,3 +136,70 @@ function Get-DeploymentData {
 
 # END OF FUNCTION
 ####################################################################################################
+
+
+####################################################################################################
+#
+# .SYNOPSIS
+#   Starts a global timer for measuring elapsed time across the deployment process.
+# .DESCRIPTION
+#   Stores the current timestamp in a global variable for later use.
+# .NOTES
+#   Version         : 6.0.0.0
+#   Author          : Imraan Iotana
+#   Creation Date   : February 2026
+#   Last Update     : February 2026
+#
+function Start-GlobalTimer {
+    [CmdletBinding()]
+    param ()
+
+    begin {
+    }
+    process {
+        # Start the global timer by storing the current timestamp in a global variable
+        $Global:UDF_GlobalStopwatch     = [System.Diagnostics.Stopwatch]::StartNew()
+        # Log the start time of the deployment process
+        #[DateTime]$UTCTimeNow           = [DateTime]::UtcNow
+        #[System.String]$LogDate         = $UTCTimeNow.ToString('yyyy-MM-dd')
+        #[System.String]$LogTime         = $UTCTimeNow.ToString('HH:mm:ss.fff')
+        [System.String]$FullTimeStamp   = Get-TimeStamp -ForHost
+        Write-Line "Deployment process started at [$FullTimeStamp]"
+    }
+    end{
+    }
+}
+
+####################################################################################################
+#
+# .SYNOPSIS
+#   Stops the global timer and reports elapsed time.
+# .DESCRIPTION
+#   Calculates the elapsed time since Start-GlobalTimer was called and writes it to the host.
+# .NOTES
+#   Version         : 6.0.0.0
+#   Author          : Imraan Iotana
+#   Creation Date   : February 2026
+#   Last Update     : February 2026
+#
+function Stop-GlobalTimer {
+    [CmdletBinding()]
+    param ()
+
+    begin {
+    }
+    process {
+        # Stop the global timer and report elapsed time
+        if ($Global:UDF_GlobalStopwatch) {
+            $Global:UDF_GlobalStopwatch.Stop()
+            Write-Line "Deployment completed in: [$($Global:UDF_GlobalStopwatch.Elapsed)]"
+            Remove-Variable -Name UDF_GlobalStopwatch -Scope Global -ErrorAction SilentlyContinue
+        } else {
+            # Log a warning if the global timer was not started
+            Write-Line "The Global timer was not started." -Type Fail
+        }
+    }
+    end {
+    }
+}
+

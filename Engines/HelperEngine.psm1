@@ -28,10 +28,10 @@
 function Get-TimeStamp {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false,ParameterSetName='ForFileName',HelpMessage='Switch to return the timestamp in a format suitable for filenames.')]
+        [Parameter(Mandatory=$false,ParameterSetName='ForFileName',HelpMessage='Returns the timestamp in a format suitable for filenames.')]
         [System.Management.Automation.SwitchParameter]$ForFileName,
 
-        [Parameter(Mandatory=$false,ParameterSetName='Default',HelpMessage='Returns the timestamp in the default format.')]
+        [Parameter(Mandatory=$false,ParameterSetName='ForHost',HelpMessage='Returns the timestamp in a format suitable for display.')]
         [System.Management.Automation.SwitchParameter]$ForHost
     )
 
@@ -53,7 +53,7 @@ function Get-TimeStamp {
         # Switch the timestamp format based on the ParameterSetName
         $OutputObject = switch ($ParameterSetName) {
             'ForFileName'   { $UTCTimestamp.ToString('yyyy_MM_dd_HHmm') }
-            'ForHost'       { "$LogDate $LogTime" }
+            'ForHost'       { "[$LogDate $LogTime]" }
             Default         { $UTCTimestamp.ToString() }
         }
     }
@@ -158,13 +158,9 @@ function Start-GlobalTimer {
     }
     process {
         # Start the global timer by storing the current timestamp in a global variable
-        $Global:UDF_GlobalStopwatch     = [System.Diagnostics.Stopwatch]::StartNew()
+        $Global:UDF_GlobalStopwatch = [System.Diagnostics.Stopwatch]::StartNew()
         # Log the start time of the deployment process
-        #[DateTime]$UTCTimeNow           = [DateTime]::UtcNow
-        #[System.String]$LogDate         = $UTCTimeNow.ToString('yyyy-MM-dd')
-        #[System.String]$LogTime         = $UTCTimeNow.ToString('HH:mm:ss.fff')
-        [System.String]$FullTimeStamp   = Get-TimeStamp -ForHost
-        Write-Line "Deployment process started at [$FullTimeStamp]"
+        Write-Line "Deployment process started at $(Get-TimeStamp -ForHost)"
     }
     end{
     }

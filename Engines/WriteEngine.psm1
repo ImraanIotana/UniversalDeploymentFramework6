@@ -35,7 +35,7 @@ function Write-Line {
         [System.String]$Message,
 
         [Parameter(Mandatory=$false,HelpMessage='Type for deciding the colors.')]
-        [ValidateSet('Busy','Success','Fail','Normal','Info','Special','NoAction','SuccessNoAction','ValidationSuccess','ValidationFail','Seperation','DoubleSeperation')]
+        [ValidateSet('Busy','Success','Fail','Normal','Info','Special','NoAction','SuccessNoAction','ValidationSuccess','ValidationFail','Separation','DoubleSeparation')]
         [AllowNull()][AllowEmptyString()]
         [System.String]$Type
     )
@@ -44,83 +44,58 @@ function Write-Line {
         ####################################################################################################
         ### MAIN PROPERTIES ###
 
-        # Create the Main Message Object
-        [PSCustomObject]$MessageObject = @{
-            InputMessage    = $Message
-            MessageType     = $Type
-            CallingFunction = [System.String]((Get-PSCallStack).Command[1]) # Get the name of the calling function
-        }
-
-        # Add the FullTimeStamp property
-        $MessageObject | Add-Member -MemberType ScriptProperty FullTimeStamp -Value {
-            [System.DateTime]$UTCTimeStamp  = [DateTime]::UtcNow
-            [System.String]$LogDate         = $UTCTimeStamp.ToString('yyyy-MM-dd')
-            [System.String]$LogTime         = $UTCTimeStamp.ToString('HH:mm:ss.fff')
-            [System.String]$FullTimeStamp   = "$LogDate $LogTime"
-            # Return the result
-            $FullTimeStamp
-        }
-
-        # Add the FullMessage property
-        $MessageObject | Add-Member -MemberType ScriptProperty FullMessage -Value {
-            # Set the properties for the message
-            [System.String]$TimeStamp       = $this.FullTimeStamp
-            [System.String]$CallingFunction = $this.CallingFunction
-            # Set the message based on the MessageType
-            switch ($this.MessageType) {
-                'NoAction'            { 'No action has been taken.' }
-                'SuccessNoAction'     { "[$($TimeStamp)] [$($CallingFunction)]: The $($Global:DeploymentObject.Action)-process is considered successful. No action has been taken." }
-                'Seperation'          { "[$($TimeStamp)] ----------------------------------------------------------------------------------------------------" }
-                'DoubleSeperation'    { "[$($TimeStamp)] ====================================================================================================" }
-                'ValidationSuccess'   { "[$($TimeStamp)] [$($CallingFunction)]: The validation is successful. The process will now start." }
-                'ValidationFail'      { "[$($TimeStamp)] [$($CallingFunction)]: The validation failed. The process will NOT start." }
-                Default               { "[$($TimeStamp)] [$($CallingFunction)]: $($this.InputMessage)" }
-            }
-        }
-
-        # Add the ForegroundColor property
-        $MessageObject | Add-Member -MemberType ScriptProperty ForegroundColor -Value {
-            switch ($this.MessageType) {
-                'Busy'              { 'Yellow' }
-                'Success'           { 'Green' }
-                'SuccessNoAction'   { 'Green' }
-                'Normal'            { 'White' }
-                'Fail'              { 'Red' }
-                'Special'           { 'Cyan' }
-                'Seperation'        { 'White' }
-                'DoubleSeperation'  { 'White' }
-                'ValidationFail'    { 'Red' }
-                'Info'              { 'White' }
-                Default             { 'DarkGray' }
-            }
-        }
-
-        # Add the BackgroundColor property
-        $MessageObject | Add-Member -MemberType ScriptProperty BackgroundColor -Value {
-            switch ($this.MessageType) {
-                'Fail'              { '' }
-                'ValidationFail'    { '' }
-                'Info'              { 'Gray' }
-                Default             { '' }
-            }
-        }
-
-        # WRITE METHOD
-        # Add the WriteMessage method
-        $MessageObject | Add-Member -MemberType ScriptMethod WriteMessage -Value {
-            # Switch on the BackgroundColor
-            switch ([System.String]::IsNullOrEmpty($this.BackgroundColor)) {
-                $false  { Write-Host $this.FullMessage -ForegroundColor $this.ForegroundColor -BackgroundColor $this.BackgroundColor }
-                $true   { Write-Host $this.FullMessage -ForegroundColor $this.ForegroundColor }
-            }
-        }
+        # Set the main properties for the message
+        [System.String]$OriginalMessage     = $Message
+        [System.String]$MessageType         = $Type
+        [System.String]$TimeStamp           = Get-TimeStamp -ForHost
+        [System.String]$DeploymentAction    = Get-DeploymentData -PropertyName Action
+        [System.String]$CallingFunction     = "[$((Get-PSCallStack).Command[1])]:" # Get the name of the calling function
 
         ####################################################################################################
     }
     
     process {
+        # PREPARATION - MESSAGE FORMATTING
+        # Set the message based on the MessageType
+        [System.String]$FullMessage = switch ($MessageType) {
+            'NoAction'            { 'No action has been taken.' }
+            'SuccessNoAction'     { "$TimeStamp $CallingFunction The $($DeploymentAction)-process is considered successful. No action has been taken." }
+            'Separation'          { "$TimeStamp ----------------------------------------------------------------------------------------------------" }
+            'DoubleSeparation'    { "$TimeStamp ====================================================================================================" }
+            'ValidationSuccess'   { "$TimeStamp $CallingFunction The validation is successful. The process will now start." }
+            'ValidationFail'      { "$TimeStamp $CallingFunction The validation failed. The process will NOT start." }
+            Default               { "$TimeStamp $CallingFunction $OriginalMessage" }
+        }
+
+        # PREPARATION - FOREGROUND COLOR SELECTION
+        # Set the foreground color based on the MessageType
+        [System.String]$ForegroundColor = switch ($MessageType) {
+            'Busy'              { 'Yellow' }
+            'Success'           { 'Green' }
+            'SuccessNoAction'   { 'Green' }
+            'Normal'            { 'White' }
+            'Fail'              { 'Red' }
+            'Special'           { 'Cyan' }
+            'Separation'        { 'White' }
+            'DoubleSeparation'  { 'White' }
+            'ValidationFail'    { 'Red' }
+            'Info'              { 'White' }
+            Default             { 'DarkGray' }
+        }
+
+        # PREPARATION - BACKGROUND COLOR SELECTION
+        # Set the background color based on the MessageType
+        [System.String]$BackgroundColor = switch ($MessageType) {
+            'Info'              { 'Gray' }
+            Default             { '' }
+        }
+
+        # EXECUTION
         # Write the message
-        $MessageObject.WriteMessage()
+        switch ([System.String]::IsNullOrEmpty($BackgroundColor)) {
+            $false  { Write-Host $FullMessage -ForegroundColor $ForegroundColor -BackgroundColor $BackgroundColor }
+            $true   { Write-Host $FullMessage -ForegroundColor $ForegroundColor }
+        }
     }
     
     end {
